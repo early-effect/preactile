@@ -16,13 +16,13 @@ sbt "~example/fastLinkJS"
 ```
 
 ## installation
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.russwyte/preactile_sjs1_3.svg)](https://mvnrepository.com/artifact/io.github.russwyte/preactile)
+[![Maven Central](https://img.shields.io/maven-central/v/rocks.earlyeffect/preactile_sjs1_3.svg)](https://mvnrepository.com/artifact/rocks.earlyeffect/preactile)
 
-```libraryDependencies += "io.github.russwyte" %% "preactile" % "x,y,z"```
+```libraryDependencies += "rocks.earlyeffect" %% "preactile" % "x,y,z"```
 
 for conduit component support you will also want
 
-```libraryDependencies += "io.github.russwyte" %% "preactile-conduit" % "x,y,z"```
+```libraryDependencies += "rocks.earlyeffect" %% "preactile-conduit" % "x,y,z"```
 
 Copyright 2025 Russ White
 
