@@ -31,3 +31,13 @@ metals.sbt
 .idea_modules
 /.worksheet/
 package-lock.json
+
+# npm dependencies
+node_modules/
+core/node_modules/
+
+# Grok Build config
+.grok/
+
+# MCP server config
+.mcp.json
