@@ -21,13 +21,25 @@ trait StatefulComponent[Props, State] extends PreactileComponent[Props, State]:
 
   final private class StatefulInstance extends InstanceFacade[Props, State]:
 
+    // Track whether state has been initialized. componentWillMount can't read props in newer Preact,
+    // so we initialize lazily in renderJS where the props argument is available.
+    private var _stateInitialized = false
+
     override def componentDidMount(): Unit = didMount(this)
 
     override def componentWillUnmount(): Unit = willMount(this)
 
     @JSName("render")
-    override def renderJS(props: js.Dynamic, state: js.Dynamic): VNodeJS =
-      addSelectors(render(lookupProps(props), lookupState(state), instance = this), this)
+    override def renderJS(p: js.Dynamic, s: js.Dynamic): VNodeJS =
+      val componentProps = lookupProps(p)
+      if !_stateInitialized then
+        val initState = theComponent.initialState(componentProps)
+        setState(initState)
+        _stateInitialized = true
+        addSelectors(render(componentProps, initState, instance = this), this)
+      else
+        val currentState = lookupState(s)
+        addSelectors(render(componentProps, currentState, instance = this), this)
 
     override def shouldComponentUpdate(nextProps: js.Dynamic, nextState: js.Dynamic, nextContext: js.Dynamic): Boolean =
       theComponent.shouldUpdate(lookupProps(nextProps), lookupState(nextState), previous = this)
@@ -44,9 +56,9 @@ trait StatefulComponent[Props, State] extends PreactileComponent[Props, State]:
       val res = theComponent.deriveState(lookupProps(nextProps), lookupState())
       setState(res)
 
-    override def componentWillMount(): Unit =
-      setState(theComponent.initialState(props))
-      willMount(this)
+    // Don't read props here: newer Preact doesn't set this.props before componentWillMount.
+    // Initial state is computed lazily in renderJS where props are available as arguments.
+    override def componentWillMount(): Unit = ()
 
     override def componentDidCatch(e: js.Error): Unit =
 //      log("caught", e)

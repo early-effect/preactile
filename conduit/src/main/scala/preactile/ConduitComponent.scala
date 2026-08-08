@@ -7,8 +7,8 @@ import preactile.impl.VNodeJS
 
 import conduit.*
 
-abstract class ConduitComponent[Props, Model <: Product: Optics as m, State](
-    conduit: Conduit[Model],
+abstract class ConduitComponent[Props, Model <: Product: Optics as m, Event, State](
+    conduit: Conduit[Model, Event],
     lensF: Optics[Model] => Lens[Model, State] = identity,
 ) extends PreactileComponent[Props, State]:
   theComponent =>
@@ -20,14 +20,14 @@ abstract class ConduitComponent[Props, Model <: Product: Optics as m, State](
   override lazy val instanceConstructor: js.Dynamic = js.constructorOf[CircuitInstance]
 
   final private class CircuitInstance extends InstanceFacade[Props, State]:
-    private var unsubscribe: Listener[Model, State] = Listener.unit(lens)
+    private var unsubscribe: Listener[Model, Event, State] = _
 
     override def componentDidUpdate(oldProps: js.Dynamic, oldState: js.Dynamic, snapshot: js.Dynamic): Unit =
       didUpdate(
         oldProps = lookupProps(oldProps),
         oldState = lookupState(oldState),
         instance = this,
-        oldInstance = snapshot.asInstanceOf[js.UndefOr[ConduitComponent[Props, Model, State]#Instance]],
+        oldInstance = snapshot.asInstanceOf[js.UndefOr[ConduitComponent[Props, Model, Event, State]#Instance]],
       )
     override def componentDidMount(): Unit = didMount(this)
 

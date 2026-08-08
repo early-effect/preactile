@@ -34,7 +34,7 @@ object Filter:
 object TodoList:
   import todo.model.TodoList.actions.*
 
-  val handler = handle[TodoList]:
+  val handler = handle[TodoList, Nothing]:
     case GoOnline                         => update(_.copy(online = true))
     case GoOffline                        => update(_.copy(online = false))
     case Add(todo)                        => update(_.add(todo))
@@ -47,15 +47,15 @@ object TodoList:
     case FinishEditing(todo, description) => update(_.finishEditing(todo, description))
 
   object actions:
-    case object GoOnline                                            extends AppAction
-    case object GoOffline                                           extends AppAction
-    final case class Add(todo: Todo)                                extends AppAction
-    final case class Delete(todo: Todo)                             extends AppAction
-    final case class Update(todo: Todo)                             extends AppAction
-    final case class ApplyFilter(filter: Filter)                    extends AppAction
-    case object ClearCompleted                                      extends AppAction
-    final case class SetAll(boolean: Boolean)                       extends AppAction
-    final case class FinishEditing(todo: Todo, description: String) extends AppAction
-    final case class CancelEditing(todo: Todo)                      extends AppAction
+    case object GoOnline                                            extends Action
+    case object GoOffline                                           extends Action
+    final case class Add(todo: Todo)                                extends Action
+    final case class Delete(todo: Todo)                             extends Action
+    final case class Update(todo: Todo)                             extends Action
+    final case class ApplyFilter(filter: Filter)                    extends Action
+    case object ClearCompleted                                      extends Action
+    final case class SetAll(boolean: Boolean)                       extends Action
+    final case class FinishEditing(todo: Todo, description: String) extends Action
+    final case class CancelEditing(todo: Todo)                      extends Action
   end actions
 end TodoList

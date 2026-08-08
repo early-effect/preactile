@@ -1,0 +1,8 @@
+{
+  "name": "preactile-core",
+  "private": true,
+  "devDependencies": {
+    "jsdom": "^26.0.0",
+    "preact": "10.5.13"
+  }
+}
