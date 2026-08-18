@@ -22,7 +22,7 @@ object ZipxVersions extends zipx.ZipxVersions:
   val specularZioTest: Lib   = specular.mod("specular-zio-test").test
   val specularSite: Lib      = specular.mod("specular-site").test
   val specularTheme: Lib     = specular.mod("early-effect-docs-theme").test
-  val chekhov: Lib           = Lib("rocks.earlyeffect", "chekhov-zio-test", "0.0.2").test
+  val chekhov: Lib           = Lib("rocks.earlyeffect", "chekhov-zio-test", "0.0.4").test
   val chekhovDriver: Lib     = chekhov.mod("chekhov-driver").test
   // The example project needs CrossVersion.for3Use2_13, which the catalog Cross cannot express, so its
   // libraryDependencies line stays in build.sbt; this row exists so zipxCheckDeps sees the GAV.
@@ -40,4 +40,4 @@ object ZipxVersions extends zipx.ZipxVersions:
   val pgp: Plugin           = Plugin("com.github.sbt", "sbt-pgp", "2.3.1")
   val zipxPlugin: Plugin    = Plugin("rocks.earlyeffect", "sbt-zipx", "0.7.1")
   val specularPlugin: Plugin = Plugin("rocks.earlyeffect", "sbt-specular", "0.12.0")
-  val chekhovPlugin: Plugin  = Plugin("rocks.earlyeffect", "sbt-chekhov", "0.0.2")
+  val chekhovPlugin: Plugin  = Plugin("rocks.earlyeffect", "sbt-chekhov", "0.0.4")

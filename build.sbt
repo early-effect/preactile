@@ -11,12 +11,28 @@ usePgpKeyHex(sys.env.getOrElse("PGP_KEY_HEX", "MISSING_KEY_HEX"))
 // generated from it; libraryDependencies below derive from its Lib rows.
 V.settings
 
-// zipx CI configuration: the default parallel Verify policy (test via sbt's core
-// testFull, fmt, workflow-check, advisories), plus tag-triggered publish and docs deploy.
+// zipx CI configuration: the default parallel Verify policy (fmt, workflow-check,
+// advisories), plus tag-triggered publish and docs deploy.
 zipxJavaVersion := JdkVersion("25")
 zipxCapabilities += ZipxCentral.release
 zipxCapabilities += ZipxDocs.pages(sbtProject = "docs")
 zipxWorkflowDispatch := true
+// The CI test job needs Node: docs/specularSite bundles the client with Vite (npm), and the
+// Chekhov E2E tests drive Chromium through the pinned Playwright CLI (docs/chekhovInstall).
+// Browsers land in target/ms-playwright so the LocalDir sbt cache carries them between runs.
+zipxEnv := Map(
+  "PLAYWRIGHT_BROWSERS_PATH" -> EnvValue.typed(Expr.github("workspace") ++ Expr.lit("/target/ms-playwright"))
+)
+zipxCapabilities += Capability
+  .once(
+    name = Capability.TestName,
+    command = zipxTasks.session(
+      docs / specularSite,
+      docs / chekhovInstall,
+      testFull,
+    ),
+  )
+  .withNodeVersion(NodeVersion("24"))
 
 /** Dev loop: build site (fastLink client + vite + HTML), start DocsServe once, then watch-rebuild. DocsServe is a
   * static file server on target/site; it does not need restarts when assets change. Watch tracks docs + docsClient via
@@ -108,6 +124,8 @@ lazy val docs = project
   .settings(
     name           := "preactile-docs",
     publish / skip := true,
+    // The E2E suite (TodoDemoSpec) drives Chromium; `docs/chekhovInstall` installs exactly this.
+    chekhovBrowser := "chromium",
     // Chekhov rows are for E2E tests against the served docs site.
     libraryDependencies ++= V.deps(
       V.specular,
@@ -167,14 +185,10 @@ lazy val docs = project
     // One-shot start: ensure client JS + site exist before forking DocsServe.
     // (specularSite already depends on specularJsLink → docsClient/fastLinkJS.)
     Test / runReload := (Test / runReload).dependsOn(specularSite).value,
-    // Chekhov E2E tests: fork so envVars are honored and Playwright driver can spawn.
+    // Chekhov E2E tests: fork so the Playwright driver can spawn node. The driver CLI is the
+    // pinned Playwright installed by `docs/chekhovInstall`, auto-discovered from the Chekhov
+    // cache; in CI browsers come from PLAYWRIGHT_BROWSERS_PATH (zipxEnv above).
     Test / fork := true,
-    Test / envVars ++= {
-      val baseDir = (ThisBuild / baseDirectory).value
-      Map(
-        "PLAYWRIGHT_DRIVER_CLI" -> (baseDir / "node_modules" / "playwright" / "cli.js").getAbsolutePath
-      )
-    },
   )
 
 // docsClient: ScalaJS project that mounts interactive examples into SSR-rendered DOM elements.

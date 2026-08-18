@@ -19,6 +19,8 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/target/ms-playwright
     outputs:
       run: ${{ steps.check.outputs.run }}
     steps:
@@ -42,6 +44,8 @@ jobs:
     needs:
       - verify-gate
     if: needs.verify-gate.result == 'success' && needs.verify-gate.outputs.run == 'false'
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/target/ms-playwright
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -65,6 +69,8 @@ jobs:
     needs:
       - verify-gate
     if: "!cancelled() && !startsWith(github.ref, 'refs/tags/') && github.event_name != 'workflow_dispatch' && ((needs.verify-gate.result != 'success') || (needs.verify-gate.outputs.run == 'true'))"
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/target/ms-playwright
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -76,16 +82,16 @@ jobs:
           java-version: "25"
           runner-os: ubuntu-latest
           cache-key-suffix: test
-          node-version: ""
+          node-version: "24"
           sbt-disk-cache: "false"
           local-cache: "true"
           cache-epoch: ""
       - name: test
         run: |
           if [ "$ZIPX_VERIFY_CLEAN_FULL" = "true" ]; then
-            sbt 'cleanFull; testFull'
+            sbt 'cleanFull; docs/specularSite; docs/chekhovInstall; testFull'
           else
-            sbt 'testFull'
+            sbt 'docs/specularSite; docs/chekhovInstall; testFull'
           fi
         env:
           ZIPX_VERIFY_CLEAN_FULL: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'clean') }}
@@ -95,6 +101,8 @@ jobs:
     needs:
       - verify-gate
     if: "!cancelled() && !startsWith(github.ref, 'refs/tags/') && github.event_name != 'workflow_dispatch' && ((needs.verify-gate.result != 'success') || (needs.verify-gate.outputs.run == 'true'))"
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/target/ms-playwright
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -125,6 +133,8 @@ jobs:
     needs:
       - verify-gate
     if: "!cancelled() && !startsWith(github.ref, 'refs/tags/') && github.event_name != 'workflow_dispatch' && ((needs.verify-gate.result != 'success') || (needs.verify-gate.outputs.run == 'true'))"
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/target/ms-playwright
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -155,6 +165,8 @@ jobs:
     needs:
       - verify-gate
     if: "!cancelled() && !startsWith(github.ref, 'refs/tags/') && github.event_name != 'workflow_dispatch' && ((needs.verify-gate.result != 'success') || (needs.verify-gate.outputs.run == 'true'))"
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/target/ms-playwright
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -184,6 +196,7 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/target/ms-playwright
       PGP_KEY_HEX: ${{ secrets.PGP_KEY_HEX }}
       PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
       SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
