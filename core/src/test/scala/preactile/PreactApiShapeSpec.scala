@@ -7,8 +7,8 @@ import zio.test.*
 
 /** Tests that verify our assumptions about Preact 10.x's Component API shape match reality.
   *
-  * These are critical: if any of these fail, the core bindings in ComponentJS/StatefulComponent
-  * need updating to match actual Preact behavior.
+  * These are critical: if any of these fail, the core bindings in ComponentJS/StatefulComponent need updating to match
+  * actual Preact behavior.
   */
 object PreactApiShapeSpec extends PreactileSpec:
 
@@ -37,15 +37,15 @@ object PreactApiShapeSpec extends PreactileSpec:
 
         override def willMount(instance: Instance): Unit =
           // Try to read props via the instance's rawProps. In newer Preact this is undefined/null here.
-          val raw = js.Dynamic.global.eval("this") match {
+          val raw = js.Dynamic.global.eval("this") match
             case d: js.Dynamic =>
               try d.rawProps != null && d.rawProps.name != null
               catch case _: Throwable => false
-          }
           willMountSawProps = raw
 
         override def render(name: String, state: String, instance: Instance): VNode =
           E.div(s"willmount:$state:${if willMountSawProps then "saw-props" else "no-props"}")
+      end WillMountComponent
 
       val component = new WillMountComponent()
       render(component("test"))
@@ -80,6 +80,7 @@ object PreactApiShapeSpec extends PreactileSpec:
 
         override def render(unit: Unit, count: Int, instance: Instance): VNode =
           E.div(s"count:$count")
+      end SetStateComponent
 
       val component = new SetStateComponent()
       render(component(()))
@@ -100,6 +101,7 @@ object PreactApiShapeSpec extends PreactileSpec:
 
         override def render(name: String, state: String, instance: Instance): VNode =
           E.div(s"$name:$state")
+      end ShouldUpdateComponent
 
       val component = new ShouldUpdateComponent()
       render(component("a"))
@@ -121,6 +123,7 @@ object PreactApiShapeSpec extends PreactileSpec:
           error.fold(SuperBorkedChildComponent(name))(e => E.div(e.message))
 
         override def didCatch(e: js.Error, instance: Instance): Unit = instance.setState(Some(e))
+      end Catcher
 
       val component = new Catcher()
       render(component("foo"))

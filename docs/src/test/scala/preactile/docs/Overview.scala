@@ -1,6 +1,6 @@
 package preactile.docs
 
-import specular.core.DocSpec
+import specular.*
 import specular.ziotest.DocSpecSuite
 
 object Overview extends DocSpecSuite:
@@ -18,6 +18,15 @@ object Overview extends DocSpecSuite:
        - **Type-safe**: Full Scala 3 type safety for components, props, and events.
        - **Interoperable**: Drop in alongside any JS library or framework.
 
+       ## Live demo
+
+       This is a real Preactile component rendered live in your browser:
+    """,
+    exampleDom("overview-greeting").fromSource(
+      "docs/client/src/main/scala/preactile/docs/OverviewDemo.scala",
+      "demo",
+    ),
+    md"""
        ## Installation
 
        Add the dependency to your `build.sbt`:
@@ -37,22 +46,23 @@ object Overview extends DocSpecSuite:
        Define a simple stateless component:
 
        ```scala mdoc:compile-only
+       import preactile.*
        import preactile.dsl._
 
-       object HelloWorld extends PreactileComponent:
-         type Props = Unit
-         def render(props: Props) = div("Hello, world!")
+       object HelloWorld extends Component[Unit]:
+         def render(props: Unit): VNode = div("Hello, world!")
        ```
 
-       Then mount it to the DOM:
+       Then mount it to the DOM (see [Mounting](/Mounting) for setup details):
 
        ```scala mdoc:compile-only
-       import preactile.impl.Preact
+       import org.scalajs.dom.document
 
        @main def run(): Unit =
-         Preact.render(HelloWorld(), document.getElementById("app"))
+         preactile.preact.render(HelloWorld(()), document.getElementById("app"))
        ```
 
        See the [Components](/Components) page for more examples.
        """,
   )
+end Overview

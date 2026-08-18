@@ -1,0 +1,15 @@
+{
+  "name": "preactile-docs-client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "vite": "^6.2.0"
+  },
+  "dependencies": {
+    "preact": "^10.25.3"
+  }
+}

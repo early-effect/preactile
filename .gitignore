@@ -41,3 +41,13 @@ core/node_modules/
 
 # MCP server config
 .mcp.json
+.playwright-mcp/
+
+# Scala semanticdb artifacts
+*.semanticdb
+
+# Local dev screenshots
+*.png
+
+# Vite input: Scala.js fastLinkJS output copied in by docs/specularJsLink
+docs/client/main.js

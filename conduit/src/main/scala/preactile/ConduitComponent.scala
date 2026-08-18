@@ -1,5 +1,6 @@
 package preactile
 
+import scala.compiletime.uninitialized
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSName
 
@@ -20,7 +21,7 @@ abstract class ConduitComponent[Props, Model <: Product: Optics as m, Event, Sta
   override lazy val instanceConstructor: js.Dynamic = js.constructorOf[CircuitInstance]
 
   final private class CircuitInstance extends InstanceFacade[Props, State]:
-    private var unsubscribe: Listener[Model, Event, State] = _
+    private var unsubscribe: Listener[Model, Event, State] = uninitialized
 
     override def componentDidUpdate(oldProps: js.Dynamic, oldState: js.Dynamic, snapshot: js.Dynamic): Unit =
       didUpdate(
