@@ -1,24 +1,19 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 import scala.sys.process._
+import ZipxVersions as V
 
 // CI-only publishing: the signing key hex comes from the PGP_KEY_HEX env var (an early-effect
 // org secret). Local builds use a sentinel that keeps the build loadable but fails signing loudly.
 usePgpKeyHex(sys.env.getOrElse("PGP_KEY_HEX", "MISSING_KEY_HEX"))
 
-val scala3Version   = "3.8.4"
-val zioVersion      = "2.1.26"
-val specularVersion = "0.12.0"
-val chekhovVersion  = "0.0.2"
+// Typed catalog (project/ZipxVersions.scala): scalaVersion plus the zipx CI keys (catalog rows,
+// pins, action rows, zipxCheckDeps). project/plugins.sbt and project/build.properties are
+// generated from it; libraryDependencies below derive from its Lib rows.
+V.settings
 
-ThisBuild / scalaVersion := scala3Version
-
-// zipx CI configuration
+// zipx CI configuration: the default parallel Verify policy (test via sbt's core
+// testFull, fmt, workflow-check, advisories), plus tag-triggered publish and docs deploy.
 zipxJavaVersion := JdkVersion("25")
-zipxTestTask    := "testFull"
-
-val Fmt = CapabilityName("fmt")
-zipxCapabilities += zipxTasks.once(Fmt, scalafmtCheckAll)
-zipxCapabilities += Capability.test.copy(needsCapabilities = List(Fmt))
 zipxCapabilities += ZipxCentral.release
 zipxCapabilities += ZipxDocs.pages(sbtProject = "docs")
 zipxWorkflowDispatch := true
@@ -90,12 +85,7 @@ lazy val core = project
     Test / envVars += ("NODE_PATH" -> (baseDirectory.value / "node_modules").getAbsolutePath),
     // Tests use CommonJS so vm.runInThisContext can execute them (no dynamic import needed).
     Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
-    libraryDependencies ++= Seq(
-      "dev.zio"      %% "zio"          % zioVersion % Test,
-      "dev.zio"      %% "zio-test"     % zioVersion % Test,
-      "dev.zio"      %% "zio-test-sbt" % zioVersion % Test,
-      "org.scala-js" %% "scalajs-dom"  % "2.8.0",
-    ),
+    libraryDependencies ++= V.deps(V.zio.test, V.zioTest, V.zioTestSbt, V.scalajsDom),
   )
 
 lazy val preactileConduit = project
@@ -105,11 +95,7 @@ lazy val preactileConduit = project
   .settings(
     name        := "preactile-conduit",
     Test / fork := false, // ChekhovPlugin forces fork := true; Scala.js tests must not fork
-    libraryDependencies ++= Seq(
-      "io.github.russwyte" %% "conduit"              % "0.0.6",
-      "io.github.cquiroz"  %% "scala-java-time"      % "2.7.0",
-      "io.github.cquiroz"  %% "scala-java-time-tzdb" % "2.7.0",
-    ),
+    libraryDependencies ++= V.deps(V.conduit, V.scalaJavaTime, V.scalaJavaTimeTzdb),
   )
 
 // docs: JVM-only Specular project (DocSpecSuites run as tests, site builds on JVM).
@@ -122,14 +108,14 @@ lazy val docs = project
   .settings(
     name           := "preactile-docs",
     publish / skip := true,
-    libraryDependencies ++= Seq(
-      "rocks.earlyeffect" %% "specular-core"           % specularVersion % Test,
-      "rocks.earlyeffect" %% "specular-zio-test"       % specularVersion % Test,
-      "rocks.earlyeffect" %% "specular-site"           % specularVersion % Test,
-      "rocks.earlyeffect" %% "early-effect-docs-theme" % specularVersion % Test,
-      // Chekhov for E2E tests against the served docs site.
-      "rocks.earlyeffect" %% "chekhov-zio-test" % chekhovVersion % Test,
-      "rocks.earlyeffect" %% "chekhov-driver"   % chekhovVersion % Test,
+    // Chekhov rows are for E2E tests against the served docs site.
+    libraryDependencies ++= V.deps(
+      V.specular,
+      V.specularZioTest,
+      V.specularSite,
+      V.specularTheme,
+      V.chekhov,
+      V.chekhovDriver,
     ),
     // Chekhov depends on zio-json 0.10.x; specular-site pulls in zio-schema-json (0.9.x).
     dependencyOverrides += "dev.zio" %% "zio-json" % "0.10.0",
@@ -200,10 +186,7 @@ lazy val docsClient = project
     name           := "preactile-docs-client",
     Test / fork    := false, // ChekhovPlugin forces fork := true; Scala.js tests must not fork
     publish / skip := true,
-    libraryDependencies ++= Seq(
-      "dev.zio"           %% "zio"           % zioVersion,
-      "rocks.earlyeffect" %% "specular-core" % specularVersion,
-    ),
+    libraryDependencies ++= V.deps(V.zio, V.specular),
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     Compile / mainClass := Some("preactile.docs.ClientMain"),
