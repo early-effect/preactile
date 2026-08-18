@@ -17,9 +17,10 @@ zipxJavaVersion := JdkVersion("25")
 zipxCapabilities += ZipxCentral.release
 zipxCapabilities += ZipxDocs.pages(sbtProject = "docs")
 zipxWorkflowDispatch := true
-// The CI test job needs Node: docs/specularSite bundles the client with Vite (npm), and the
-// Chekhov E2E tests drive Chromium through the pinned Playwright CLI (docs/chekhovInstall).
-// Browsers land in target/ms-playwright so the LocalDir sbt cache carries them between runs.
+// The CI test job needs Node: docs/specularSite bundles the client with Vite (npm), the Chekhov
+// E2E tests drive Chromium through the pinned Playwright CLI (docs/chekhovInstall), and core's
+// JSDOM tests need core/node_modules (jsdom, preact) via NODE_PATH. Browsers land in
+// target/ms-playwright so the LocalDir sbt cache carries them between runs.
 zipxEnv := Map(
   "PLAYWRIGHT_BROWSERS_PATH" -> EnvValue.typed(Expr.github("workspace") ++ Expr.lit("/target/ms-playwright"))
 )
@@ -33,6 +34,15 @@ zipxCapabilities += Capability
     ),
   )
   .withNodeVersion(NodeVersion("24"))
+  // After the setup action (JDK + sbt + Node), before the sbt command: install core's JS
+  // devDeps (jsdom for the JSDOM test env, preact for @JSImport).
+  .withExtraSteps(
+    Steps.built("npm-core")(
+      Step
+        .run(Script(zipx.shell.Exec("npm", Word.lit("install"), Word.lit("--prefix"), Word.lit("core"))))
+        .named("npm install (core)"),
+    )
+  )
 
 /** Dev loop: build site (fastLink client + vite + HTML), start DocsServe once, then watch-rebuild. DocsServe is a
   * static file server on target/site; it does not need restarts when assets change. Watch tracks docs + docsClient via

@@ -86,6 +86,8 @@ jobs:
           sbt-disk-cache: "false"
           local-cache: "true"
           cache-epoch: ""
+      - name: npm install (core)
+        run: npm install --prefix core
       - name: test
         run: |
           if [ "$ZIPX_VERIFY_CLEAN_FULL" = "true" ]; then
