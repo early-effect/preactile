@@ -61,7 +61,7 @@ class JSDOMNodeJSEnv(config: JSDOMNodeJSEnv.Config) extends JSEnv:
     }.toList
 
   private def internalStart(files: List[Path], runConfig: RunConfig): JSRun =
-    val command        = config.executable :: config.args
+    val command = config.executable :: config.args
     val externalConfig = ExternalJSRun
       .Config()
       .withEnv(env)
@@ -72,11 +72,11 @@ class JSDOMNodeJSEnv(config: JSDOMNodeJSEnv.Config) extends JSEnv:
     Map("NODE_MODULE_CONTEXTS" -> "0") ++ config.env
 
   private def codeWithJSDOMContext(scripts: List[Path]): List[Path] =
-    val scriptsURIs            = scripts.map(JSDOMNodeJSEnv.materialize(_))
+    val scriptsURIs = scripts.map(JSDOMNodeJSEnv.materialize(_))
     val scriptsURIsAsJSStrings =
       scriptsURIs.map(uri => "\"" + escapeJS(uri.toASCIIString) + "\"")
     val scriptsURIsJSArray = scriptsURIsAsJSStrings.mkString("[", ", ", "]")
-    val jsDOMCode          =
+    val jsDOMCode =
       s"""
          |(function () {
          |  var jsdom = require("jsdom");

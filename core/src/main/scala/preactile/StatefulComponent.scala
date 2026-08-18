@@ -40,6 +40,7 @@ trait StatefulComponent[Props, State] extends PreactileComponent[Props, State]:
       else
         val currentState = lookupState(s)
         addSelectors(render(componentProps, currentState, instance = this), this)
+    end renderJS
 
     override def shouldComponentUpdate(nextProps: js.Dynamic, nextState: js.Dynamic, nextContext: js.Dynamic): Boolean =
       theComponent.shouldUpdate(lookupProps(nextProps), lookupState(nextState), previous = this)

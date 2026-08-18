@@ -1,6 +1,6 @@
 package preactile.docs
 
-import specular.core.DocSpec
+import specular.*
 import specular.ziotest.DocSpecSuite
 
 object StatefulComponents extends DocSpecSuite:
@@ -9,42 +9,67 @@ object StatefulComponents extends DocSpecSuite:
        # Stateful Components
 
        Use `StatefulComponent` when your component needs to manage internal state.
+       The component initializes state from props, then re-renders whenever state changes.
 
-       ## Basic counter
+       ## Live counter
+
+       This is a real Preactile component rendered live in your browser. Click the buttons:
+
+    """,
+    exampleDom("stateful-counter").fromSource(
+      "docs/client/src/main/scala/preactile/docs/CounterDemo.scala",
+      "demo",
+    ),
+    md"""
+       Key points:
+
+       - `initialState` derives the starting state from props (called once on mount)
+       - `render` receives both current props and current state as arguments
+       - `instance.setState(newState)` triggers a re-render with the updated state
+
+       ## State derived from props
+
+       Initial state can depend on incoming props:
 
        ```scala mdoc:compile-only
+       import preactile.*
        import preactile.dsl._
 
-       object Counter extends StatefulComponent[Int]:
-         type Props = Unit
-         def initialState(props: Props) = 0
+       case class TimerProps(initialDelayMs: Int)
 
-         def render(state: Int, props: Props) = div(
-           span(s"Count: $state"),
-           button(onclick := (_ => setState(_ + 1)), "+"),
-           button(onclick := (_ => setState(math.max(0, _ - 1))), "-"),
-         )
+       object Timer extends StatefulComponent[TimerProps, Int]:
+         override def initialState(props: TimerProps): Int = props.initialDelayMs
+
+         def render(props: TimerProps, state: Int, instance: Instance): VNode =
+           div(
+             span(s"Elapsed: $${state}ms"),
+             button(A.onClick(_ => instance.setState(0)), "Reset"),
+           )
        ```
 
-       ## State with props
+       ## Lifecycle hooks
 
-       Combine initial props with mutable state:
+       StatefulComponent provides lifecycle hooks for side effects:
 
        ```scala mdoc:compile-only
+       import preactile.*
        import preactile.dsl._
 
-       case class TimerProps(intervalMs: Int)
+       object DataFetcher extends StatefulComponent[Unit, String]:
+         override def initialState(props: Unit): String = "Loading..."
 
-       object Timer extends StatefulComponent[Int]:
-         type Props = TimerProps
-         def initialState(props: Props) = 0
+         override def didMount(instance: Instance): Unit =
+           // Fetch data after mount; update state when ready
+           instance.setState("Data loaded!")
 
-         def render(state: Int, props: Props) = div(
-           span(s"Elapsed: ${state}ms"),
-           button(onclick := (_ => setState(0)), "Reset"),
-         )
+         override def willUnMount(instance: Instance): Unit =
+           // Clean up subscriptions or timers here
+
+         def render(props: Unit, state: String, instance: Instance): VNode =
+           p(state)
        ```
 
-       See the [Examples](/Examples) page for a live interactive counter demo.
+       See the [Examples](/Examples) page for more interactive demos.
        """,
   )
+end StatefulComponents
