@@ -1,9 +1,9 @@
 import zipx.*
 
-/** Typed catalog: every library and sbt plugin this build uses. `zipxDepUpdate` rewrites version literals here.
+/** Typed catalog: every library and plugin this build may use. `zipxDepUpdate` rewrites constructors here.
   *
-  * `project/plugins.sbt` and `project/build.properties` are generated from the Plugin rows and `sbt` below
-  * (`sbt zipxWorkflowGenerate`); do not edit them by hand.
+  * sbt-zipx is not a row: generate emits it from the loaded plugin (`zipxSelfPlugins`). sbt-pgp is not a row: zipx
+  * already brings it in. Action pins stay on jar defaults.
   */
 object ZipxVersions extends zipx.ZipxVersions:
 
@@ -28,16 +28,14 @@ object ZipxVersions extends zipx.ZipxVersions:
   // libraryDependencies line stays in build.sbt; this row exists so zipxCheckDeps sees the GAV.
   val securerandom: Lib = Lib("org.scala-js", "scalajs-java-securerandom", "1.0.0")
 
-  // sbt plugins (project/plugins.sbt is generated from these rows).
+  // sbt plugins (project/plugins.sbt is generated from these rows plus zipxSelfPlugins).
   // sbt-sonatype has no sbt 2 artifact; sbt 2.x includes Sonatype Central support built-in via
   // localStaging.value and publishTo (see build.sbt). scalajs-bundler also has no sbt 2 artifact;
   // we use Vite-style bundling for examples instead, with @JSImport for Preact.
-  val scalajsPlugin: Plugin = Plugin("org.scala-js", "sbt-scalajs", "1.22.0")
-  val scalafmt: Plugin      = Plugin("org.scalameta", "sbt-scalafmt", "2.6.2")
-  val scalafix: Plugin      = Plugin("ch.epfl.scala", "sbt-scalafix", "0.14.7")
-  val sbtReload: Plugin     = Plugin("com.jamesward", "sbt-reload", "0.0.7")
-  val dynverCi: Plugin      = Plugin("rocks.earlyeffect", "sbt-dynver-ci", "0.2.2")
-  val pgp: Plugin           = Plugin("com.github.sbt", "sbt-pgp", "2.3.1")
-  val zipxPlugin: Plugin    = Plugin("rocks.earlyeffect", "sbt-zipx", "0.7.1")
+  val scalajsPlugin: Plugin  = Plugin("org.scala-js", "sbt-scalajs", "1.22.0")
+  val scalafmt: Plugin       = Plugin("org.scalameta", "sbt-scalafmt", "2.6.2")
+  val scalafix: Plugin       = Plugin("ch.epfl.scala", "sbt-scalafix", "0.14.7")
+  val sbtReload: Plugin      = Plugin("com.jamesward", "sbt-reload", "0.0.7")
+  val dynverCi: Plugin       = Plugin("rocks.earlyeffect", "sbt-dynver-ci", "0.2.2")
   val specularPlugin: Plugin = Plugin("rocks.earlyeffect", "sbt-specular", "0.12.0")
   val chekhovPlugin: Plugin  = Plugin("rocks.earlyeffect", "sbt-chekhov", "0.0.4")
