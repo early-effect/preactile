@@ -3,6 +3,6 @@
   "private": true,
   "devDependencies": {
     "jsdom": "^26.0.0",
-    "preact": "10.5.13"
+    "preact": "10.26.4"
   }
 }

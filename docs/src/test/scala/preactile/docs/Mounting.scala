@@ -13,39 +13,48 @@ object Mounting extends DocSpecSuite:
 
        ## Prerequisites
 
-       You need two things: a ScalaJS build that includes preactile, and Preact itself as an npm dependency.
+       You need two things: a ScalaJS build that includes preactile, and Preact itself, spliced
+       into your bundle by [sbt-splice](https://github.com/early-effect/sbt-splice). No npm or
+       Node is required for bundling.
 
-       ### Add Preact to your project
+       ### Add sbt-splice
 
-       Since Preact is imported via `@JSImport`, you must include it in your npm dependencies:
-
-       ```bash
-       npm install preact
+       ```scala
+       // project/plugins.sbt
+       addSbtPlugin("rocks.earlyeffect" % "sbt-splice" % "0.1.0")
        ```
 
-       Or with yarn:
+       ### Pin Preact
 
-       ```bash
-       yarn add preact
+       Preact is imported via `@JSImport`, so the browser needs a copy of it. Splice downloads a
+       pinned copy from a CDN and inlines it into your bundle. The sha256 makes the pin
+       verifiable — an unresolved or mismatched specifier fails the splice task:
+
+       ```scala
+       val preactSplice = Splice.lib("preact", "10.26.4", "dist/preact.module.js")
+         .sha256("2ce1b7b810fc14cda3f4242e636311b5a5e6d5a6cb1f3274fe948fe3bba3d32e")
+
+       lazy val example = project
+         .enablePlugins(ScalaJSPlugin)
+         .dependsOn(core)
+         .settings(
+           scalaJSUseMainModuleInitializer := true,
+           scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+           spliceResolvers += Splice.jsDelivr,
+           spliceLibs      ++= Seq(preactSplice),
+         )
        ```
 
-       ## Vite setup (recommended)
+       ## Building the bundle
 
-       The simplest approach uses Vite as your bundler. Create a `vite.config.js`:
+       Splice produces a self-contained ES module that your page loads directly:
 
-       ```js
-       import { defineConfig } from 'vite';
+       - **Development** — `sbt example/spliceFast` writes an unminified bundle with source maps
+         to `example/target/splice/fast.js`.
+       - **Production** — `sbt example/spliceFull` Closure-optimizes the same bundle (JDK 21+)
+         to `example/target/splice/full.js`.
 
-       export default defineConfig({
-         build: {
-           rollupOptions: {
-             input: './public/index.html',
-           },
-         },
-       });
-       ```
-
-       Your `index.html` loads the ScalaJS bundle and provides a mount point:
+       Your `index.html` loads the bundle and provides a mount point:
 
        ```html
        <!DOCTYPE html>
@@ -53,57 +62,28 @@ object Mounting extends DocSpecSuite:
        <head>
          <meta charset="UTF-8" />
          <title>Preactile App</title>
+         <script type="module" src="/fast.js"></script>
        </head>
        <body>
          <div id="app"></div>
-         <script type="module" src="/target/scala-3/preactile-example-fastopt/main.js"></script>
        </body>
        </html>
        ```
 
-       Run with `npm run dev` and point your browser to the Vite URL.
+       Serve the output directory with any static file server.
 
        ### Development workflow
 
-       For live reload during development, run these in parallel:
+       This repo's example is:
 
-       Terminal 1 (Vite):
        ```bash
-       npm run dev
+       sbt ~example/ascentPreview
        ```
 
-       Terminal 2 (sbt watch):
-       ```bash
-       sbt "~example/fastLinkJS"
-       ```
-
-       Changes to Scala code trigger a rebuild; Vite reloads the page automatically.
-
-       ## sbt-only setup
-
-       If you prefer not to use npm/Vite, you can bundle everything with sbt and serve static files:
-
-       1. Include Preact via jsDependencies:
-
-          ```scala
-          lazy val example = project
-            .enablePlugins(ScalaJSPlugin)
-            .dependsOn(core)
-            .settings(
-              scalaJSUseMainModuleInitializer := true,
-              jsDependencies ++= Seq(
-                "org.webjars.npm" % "preact" % "10.26.4" / "dist/preact.min.js"
-                  minified "dist/preact.min.module.js",
-              ),
-            )
-          ```
-
-       2. Link and serve:
-
-          ```bash
-          sbt example/fullLinkJS
-          # Serve from target/scala-3/example-opt with any static file server
-          ```
+       That stages the spliced bundle and serves it with
+       [ascent-preview](https://github.com/early-effect/ascent) at `http://localhost:8766`.
+       Rebuilds rewrite `assets/dev-stamp`; the app opts in with `ascent.js.DevReload.install()`
+       (localhost only). Docs use the same loop: `sbt ~docs/specularPreview`.
 
        ## Minimal mount code
 
