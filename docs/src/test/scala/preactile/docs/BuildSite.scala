@@ -28,7 +28,7 @@ object BuildSite extends DocsSite:
   override def layers = EarlyEffectTheme.layers
 
   override def afterBuild(out: Path, result: SiteOutput): Task[Unit] =
-    EarlyEffectTheme.writeLogo(out) *> verifyClientBundle(out) *> writeDevStamp(out)
+    EarlyEffectTheme.writeLogo(out) *> verifyClientBundle(out) *> classicClientScript(out) *> writeDevStamp(out)
 
   private def verifyClientBundle(out: Path): Task[Unit] =
     ZIO.attempt {
@@ -39,8 +39,25 @@ object BuildSite extends DocsSite:
         )
     }
 
-  /** Stamp file polled by [[preactile.docs.DevReload]] after each rebuild (fastLink → vite → site). Harmless on
-    * CI/Pages: the client only polls on localhost.
+  /** spliceFull is a classic Closure script. Specular always emits `type="module"`, and modules are strict: Scala.js
+    * `Throwable` does `this.message = …` on an `Error` subclass, which throws in strict mode and leaves demos
+    * unmounted. Drop the attribute so the production bundle runs as a classic script. spliceFast still runs this way
+    * (`const` at top level is legal in both).
+    */
+  private def classicClientScript(out: Path): Task[Unit] =
+    ZIO.attempt {
+      val dir = Files.newDirectoryStream(out, "*.html")
+      try
+        dir.forEach { p =>
+          val html = Files.readString(p)
+          val next = html.replaceAll("""type="module"(\s+src="[^"]*client\.js")""", "$1")
+          if next != html then Files.writeString(p, next)
+        }
+      finally dir.close()
+    }.unit
+
+  /** Stamp file watched by ascent-preview after each rebuild. Harmless on CI/Pages: SpecularClient only subscribes to
+    * `/__ascent/reload` on localhost.
     */
   private def writeDevStamp(out: Path): Task[Unit] =
     ZIO.attempt {

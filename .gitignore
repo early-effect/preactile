@@ -48,6 +48,3 @@ core/node_modules/
 
 # Local dev screenshots
 *.png
-
-# Vite input: Scala.js fastLinkJS output copied in by docs/specularJsLink
-docs/client/main.js

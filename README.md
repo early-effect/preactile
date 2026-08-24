@@ -1,19 +1,20 @@
 # preactile
 A scalajs UI library utilizing Preact
 
-To run the example app via vite (requires node) open a terminal in the example directory and run:
+To run the example app:
 
-```zsh
-npm run dev
 ```
-If you want to tweak the example and see your changes in real time start sbt and run the command:
+sbt ~example/ascentPreview
 ```
-~example/fastLinkJS
-```
-or just run:
-```
-sbt "~example/fastLinkJS"
-```
+
+No Node or npm needed for bundling. [sbt-splice](https://github.com/early-effect/sbt-splice)
+inlines a pinned Preact into the Scala.js output. The example is served at
+`http://localhost:8766` and live-reloads on every re-splice.
+
+Docs: `sbt ~docs/specularPreview` at `http://localhost:8765`.
+
+For a production bundle, `sbt example/spliceFull` writes a Closure-optimized
+`example/target/splice/full.js`.
 
 ## installation
 [![Maven Central](https://img.shields.io/maven-central/v/rocks.earlyeffect/preactile_sjs1_3.svg)](https://mvnrepository.com/artifact/rocks.earlyeffect/preactile)

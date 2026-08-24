@@ -1,5 +1,3 @@
-import org.scalajs.linker.interface.ModuleSplitStyle
-import scala.sys.process._
 import ZipxVersions as V
 
 // CI-only publishing: the signing key hex comes from the PGP_KEY_HEX env var (an early-effect
@@ -17,9 +15,9 @@ zipxJavaVersion := JdkVersion("25")
 zipxCapabilities += ZipxCentral.release
 zipxCapabilities += ZipxDocs.pages(sbtProject = "docs")
 zipxWorkflowDispatch := true
-// The CI test job needs Node: docs/specularSite bundles the client with Vite (npm), the Chekhov
-// E2E tests drive Chromium through the pinned Playwright CLI (docs/chekhovInstall), and core's
-// JSDOM tests need core/node_modules (jsdom, preact) via NODE_PATH. Browsers land in
+// The CI test job still needs Node: Chekhov E2E drives Chromium through the pinned Playwright
+// CLI (docs/chekhovInstall), and core's JSDOM tests need core/node_modules (jsdom, preact) via
+// NODE_PATH. The docs site itself is Node-free (sbt-splice). Browsers land in
 // target/ms-playwright so the LocalDir sbt cache carries them between runs.
 zipxEnv := Map(
   "PLAYWRIGHT_BROWSERS_PATH" -> EnvValue.typed(Expr.github("workspace") ++ Expr.lit("/target/ms-playwright"))
@@ -44,13 +42,18 @@ zipxCapabilities += Capability
     )
   )
 
-/** Dev loop: build site (fastLink client + vite + HTML), start DocsServe once, then watch-rebuild. DocsServe is a
-  * static file server on target/site; it does not need restarts when assets change. Watch tracks docs + docsClient via
-  * specularSite → specularJsLink → docsClient/fastLinkJS. After each rebuild, BuildSite writes assets/dev-stamp; the
-  * client live-reloads on localhost. Open http://127.0.0.1:8765 — Enter exits watch (server bg job stops when sbt
-  * exits).
-  */
-addCommandAlias("docsDev", "; docs/Test/runReload; ~docs/specularSite")
+// sbt-splice: shared Preact pin. spliceLibs defaults to empty (splice is inert on the published
+// core/conduit projects); docsClient and example splice this pinned module into the Scala.js
+// output instead of bundling with Node. CDN pins require the sha256 — an unresolved or mismatched
+// specifier fails the splice task. spliceFull (0.1.0+) keeps JS property names, so Preact class
+// components need no extra keep-list.
+val preactSplice = Splice.lib("preact", "10.26.4", "dist/preact.module.js")
+  .sha256("2ce1b7b810fc14cda3f4242e636311b5a5e6d5a6cb1f3274fe948fe3bba3d32e")
+
+val splicePreactSettings = Def.settings(
+  spliceResolvers += Splice.jsDelivr,
+  spliceLibs      ++= Seq(preactSplice),
+)
 
 ThisBuild / scalacOptions ++= Seq(
   "-deprecation",
@@ -91,7 +94,7 @@ ThisBuild / developers := List(
 
 lazy val root = project
   .in(file("."))
-  .aggregate(core, preactileConduit, docs, docsClient, example)
+  .aggregate(core, preactileConduit, docs, docsClient, example, examplePreview)
   .settings(
     name           := "preactile-root",
     publish / skip := true,
@@ -104,8 +107,11 @@ lazy val core = project
     // ChekhovPlugin (allRequirements) sets `Test / fork := true` on every project; Scala.js
     // `test` tasks require fork := false. Re-asserted on each Scala.js project in this build.
     Test / fork := false,
-    // Preact is imported via @JSImport("preact") — consumers must include it in their npm deps.
-    // JSDOMNodeJSEnv vendored in project/JSDOMNodeJSEnv.scala (scalajs-env-jsdom-nodejs has no sbt 2 artifact).
+    // SplicePlugin (allRequirements) auto-enables here, but spliceLibs stays at the default
+    // (empty): core is a published library — consumers splice their own pinned JS.
+    // Preact is imported via @JSImport("preact"). JSDOM tests still resolve it from
+    // core/node_modules (NODE_PATH). JSDOMNodeJSEnv is vendored in
+    // project/JSDOMNodeJSEnv.scala (scalajs-env-jsdom-nodejs has no sbt 2 artifact).
     Test / jsEnv := Def.uncached { new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv() },
     // Make core/node_modules visible to Node.js when running tests from project root.
     Test / envVars += ("NODE_PATH" -> (baseDirectory.value / "node_modules").getAbsolutePath),
@@ -119,7 +125,8 @@ lazy val preactileConduit = project
   .enablePlugins(ScalaJSPlugin)
   .dependsOn(core)
   .settings(
-    name        := "preactile-conduit",
+    name := "preactile-conduit",
+    // Published library: spliceLibs stays at the default (empty), so splice is inert here.
     Test / fork := false, // ChekhovPlugin forces fork := true; Scala.js tests must not fork
     libraryDependencies ++= V.deps(V.conduit, V.scalaJavaTime, V.scalaJavaTimeTzdb),
   )
@@ -151,50 +158,24 @@ lazy val docs = project
     specularArtifactKind             := "library",
     specularBuildMain                := "preactile.docs.BuildSite",
     specularSiteDirectory            := (ThisBuild / baseDirectory).value / "target" / "site",
-    // Link JS client and bundle with Vite so bare module specifiers (preact) resolve in browser.
+    // Production site: Closure-advanced spliced client (JDK 21+). spliceFull downloads the pinned
+    // preact from jsDelivr (sha256-verified), remaps @JSImport("preact", …) into the bundle, and
+    // Closures it — no Node. Runs before specularBuildMain, so create the assets dir ourselves;
+    // BuildSite.afterBuild then verifies assets/client.js exists.
     specularJsLink := Def.uncached {
-      val log = streams.value.log
-      (docsClient / Compile / fastLinkJS).value
-
-      val baseDir = (ThisBuild / baseDirectory).value
-      val viteDir = baseDir / "docs" / "client"
-
-      // Copy ScalaJS output to docs/client/main.js for Vite to bundle.
-      val mainJs = (docsClient / Compile / fastLinkJSOutput).value / "main.js"
-      IO.copyFile(mainJs, viteDir / "main.js")
-
-      def runNpm(cmd: String): Unit = {
-        log.info(s"$cmd")
-        val exit = Process(cmd, viteDir).!
-        if (exit != 0) sys.error(s"$cmd failed with exit code $exit")
-      }
-
-      // Ensure node_modules exists.
-      if (!(viteDir / "node_modules").exists) runNpm("npm install")
-
-      // Bundle with Vite.
-      runNpm("npm run build")
-
-      // Verify bundled output exists.
-      val bundledJs = baseDir / "target" / "site" / "assets" / "client.js"
-      if (!bundledJs.exists) sys.error(s"Bundled JS not found: $bundledJs")
+      val js   = (docsClient / spliceFull).value
+      val dest = specularSiteDirectory.value / "assets" / "client.js"
+      IO.createDirectory(dest.getParentFile)
+      IO.copyFile(js, dest)
     },
-    // Preview: DocsServe serves target/site as static files (no restart needed on rebuild).
-    // `docsDev` starts it once, then `~docs/specularSite` rebuilds in place; client polls dev-stamp.
-    Test / mainClass       := Some("specular.site.DocsServe"),
-    Test / run / mainClass := Some("specular.site.DocsServe"),
-    run / fork             := true,
-    run / javaOptions ++= Seq(
-      "--sun-misc-unsafe-memory-access=allow",
-      "--enable-native-access=ALL-UNNAMED",
-    ),
-    Test / runReloadArgs := {
-      val siteDir = specularSiteDirectory.value
-      Seq("8765", siteDir.getAbsolutePath)
+    // Dev loop: fast spliced client. `sbt ~docs/specularPreview` restages via specularSiteDev
+    // and serves target/site with ascent-preview (SSE reload on assets/dev-stamp).
+    specularJsLinkDev := Def.uncached {
+      val js   = (docsClient / spliceFast).value
+      val dest = specularSiteDirectory.value / "assets" / "client.js"
+      IO.createDirectory(dest.getParentFile)
+      IO.copyFile(js, dest)
     },
-    // One-shot start: ensure client JS + site exist before forking DocsServe.
-    // (specularSite already depends on specularJsLink → docsClient/fastLinkJS.)
-    Test / runReload := (Test / runReload).dependsOn(specularSite).value,
     // Chekhov E2E tests: fork so the Playwright driver can spawn node. The driver CLI is the
     // pinned Playwright installed by `docs/chekhovInstall`, auto-discovered from the Chekhov
     // cache; in CI browsers come from PLAYWRIGHT_BROWSERS_PATH (zipxEnv above).
@@ -210,6 +191,7 @@ lazy val docsClient = project
     name           := "preactile-docs-client",
     Test / fork    := false, // ChekhovPlugin forces fork := true; Scala.js tests must not fork
     publish / skip := true,
+    splicePreactSettings,
     libraryDependencies ++= V.deps(V.zio, V.specular),
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
@@ -218,7 +200,7 @@ lazy val docsClient = project
 
 lazy val example = project
   .in(file("example"))
-  .enablePlugins(ScalaJSPlugin)
+  .enablePlugins(ScalaJSPlugin, AscentPreviewPlugin)
   .dependsOn(core, preactileConduit)
   .settings(
     name                            := "preactile-example",
@@ -226,9 +208,23 @@ lazy val example = project
     publish / skip                  := true,
     test / skip                     := true,
     scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig ~= {
-      _.withModuleKind(ModuleKind.ESModule)
-        .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("todo")))
-    },
-    libraryDependencies += ("org.scala-js" %% "scalajs-java-securerandom" % "1.0.0").cross(CrossVersion.for3Use2_13),
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    splicePreactSettings,
+    // Stage the fast spliced bundle next to index.html; `sbt ~example/ascentPreview` serves it
+    // with SSE reload. Port 8766 so it does not collide with docs on 8765.
+    spliceFastOutput         := Def.uncached(ascentPreviewRoot.value / "fast.js"),
+    ascentPreviewPort        := AscentPreviewPort(8766),
+    ascentPreviewClasspath   := Def.uncached((LocalProject("examplePreview") / Compile / fullClasspath).value),
+    libraryDependencies ++= V.deps(V.ascentJs),
+  )
+
+// JVM classpath for PreviewMain. AscentPreviewPlugin.ascentPreviewLibVersion injects
+// `ascent-preview_3` via `%`, which zipxCheckDeps cannot match to a Binary Lib row.
+lazy val examplePreview = project
+  .in(file("example/preview"))
+  .settings(
+    name           := "preactile-example-preview",
+    publish / skip := true,
+    test / skip    := true,
+    libraryDependencies ++= V.deps(V.ascentPreview),
   )
