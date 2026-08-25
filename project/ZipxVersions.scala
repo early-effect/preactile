@@ -7,7 +7,7 @@ import zipx.*
   */
 object ZipxVersions extends zipx.ZipxVersions:
 
-  val sbt: SbtVersion     = SbtVersion("2.0.5")
+  val sbt: SbtVersion     = SbtVersion("2.0.7")
   val scala: ScalaVersion = ScalaVersion("3.8.4")
 
   // Libraries
