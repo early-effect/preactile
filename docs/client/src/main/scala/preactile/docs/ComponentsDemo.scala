@@ -23,7 +23,7 @@ object ComponentsDemo:
 
     def render(props: Unit, state: Int, instance: Instance): VNode = E.div(
       A.`class`("components-demo"),
-      E.p(s"Button clicked $$state times."),
+      E.p(s"Button clicked $state times."),
       Button(ButtonProps("Click me!", () => instance.setState(state + 1))),
     )
   // specular:end

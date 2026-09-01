@@ -18,12 +18,25 @@ object BuildSite extends DocsSite:
     Examples.doc,
   )
 
-  override def site = EarlyEffectTheme
-    .brand(super.site)
-    .copy(
-      summaryMarkdown = Some("""A ScalaJS UI library built on Preact with live interactive examples."""),
-      clientScript = Some("assets/client.js"),
-    )
+  override def site =
+    val m = meta
+    EarlyEffectTheme
+      .brand(super.site)
+      .copy(
+        summaryMarkdown = Some("""A ScalaJS UI library built on Preact with live interactive examples."""),
+        clientScript = Some("assets/client.js"),
+        installSnippets = Vector(
+          CodeSnippet(
+            "Install",
+            s"""libraryDependencies += "${m.organization}" %% "preactile" % "${m.docsVersion}"""",
+          ),
+          CodeSnippet(
+            "Conduit components",
+            s"""libraryDependencies += "${m.organization}" %% "preactile-conduit" % "${m.docsVersion}"""",
+          ),
+        ),
+      )
+  end site
 
   override def layers = EarlyEffectTheme.layers
 
