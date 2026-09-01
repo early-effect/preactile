@@ -158,6 +158,9 @@ lazy val docs = project
     specularArtifactKind             := "library",
     specularBuildMain                := "preactile.docs.BuildSite",
     specularSiteDirectory            := (ThisBuild / baseDirectory).value / "target" / "site",
+    // CI docs builds are dynver `-ci`; stripCi drops the suffix so install snippets and chrome
+    // show the last published tag instead of advertising 0.x.y-ci.
+    specularDisplayVersion := stripCi,
     // Production site: Closure-advanced spliced client (JDK 21+). spliceFull downloads the pinned
     // preact from jsDelivr (sha256-verified), remaps @JSImport("preact", …) into the bundle, and
     // Closures it — no Node. Runs before specularBuildMain, so create the assets dir ourselves;

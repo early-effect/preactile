@@ -19,11 +19,15 @@ For a production bundle, `sbt example/spliceFull` writes a Closure-optimized
 ## installation
 [![Maven Central](https://img.shields.io/maven-central/v/rocks.earlyeffect/preactile_sjs1_3.svg)](https://mvnrepository.com/artifact/rocks.earlyeffect/preactile)
 
-```libraryDependencies += "rocks.earlyeffect" %% "preactile" % "x,y,z"```
+```scala
+libraryDependencies += "rocks.earlyeffect" %% "preactile" % "<version>"
+```
 
-for conduit component support you will also want
+For conduit component support:
 
-```libraryDependencies += "rocks.earlyeffect" %% "preactile-conduit" % "x,y,z"```
+```scala
+libraryDependencies += "rocks.earlyeffect" %% "preactile-conduit" % "<version>"
+```
 
 Copyright Russell White
 

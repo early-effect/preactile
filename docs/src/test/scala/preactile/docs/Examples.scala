@@ -6,15 +6,20 @@ import specular.ziotest.DocSpecSuite
 object Examples extends DocSpecSuite:
   def doc = page("Examples")(
     md"""
-       # Examples
+# Examples
 
-       The live interactive demos are embedded on their respective pages:
+Live interactive demos live on the page that teaches them. Each one is a real Preactile
+component mounted into the docs site:
 
-       - **Overview**: A basic stateless greeting component showing how components render.
-       - **Stateful Components**: An interactive counter demonstrating `StatefulComponent`,
-         `initialState`, and `setState`.
+- [Overview](/Overview): a stateless greeting (`Component[Unit]`).
+- [Components](/Components): typed props and composition (`Button` inside a click counter).
+- [Stateful Components](/StatefulComponents): `initialState` and `setState` on a counter.
+- [Conduit Integration](/ConduitIntegration): a todo app with `Conduit.make`, lensed
+  subscriptions, and `conduit.unsafe(action)`.
+- [Element DSL](/ElementDsl): attributes, events, and `when` for conditional content.
+- [Styling](/Styling): `CssClass` plus inline `A.style` declarations.
 
-       For more code examples, see the [Components](/Components) and [Element DSL](/ElementDsl) pages.
-       """
+Setup and bundling (sbt-splice, mount code) is on [Mounting](/Mounting).
+"""
   )
 end Examples
