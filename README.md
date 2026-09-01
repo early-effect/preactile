@@ -25,7 +25,7 @@ for conduit component support you will also want
 
 ```libraryDependencies += "rocks.earlyeffect" %% "preactile-conduit" % "x,y,z"```
 
-Copyright 2025 Russ White
+Copyright Russell White
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use the code in this repository except in compliance with the License.
