@@ -39,6 +39,9 @@ core/node_modules/
 # Grok Build config
 .grok/
 
+# DeepSeek Harness
+.dsh/
+
 # MCP server config
 .mcp.json
 .playwright-mcp/
