@@ -28,6 +28,7 @@ zipxCapabilities += Capability
     command = zipxTasks.session(
       docs / specularSite,
       docs / chekhovInstall,
+      embed / embedStageHost,
       testFull,
       embed / embedDceCheck,
     ),
@@ -196,6 +197,10 @@ lazy val docs = project
     // pinned Playwright installed by `docs/chekhovInstall`, auto-discovered from the Chekhov
     // cache; in CI browsers come from PLAYWRIGHT_BROWSERS_PATH (zipxEnv above).
     Test / fork := true,
+    Test / resourceGenerators += Def.task {
+      val _ = (embed / embedStageHost).value
+      Seq.empty[File]
+    }.taskValue,
   )
 
 // docsClient: ScalaJS project that mounts interactive examples into SSR-rendered DOM elements.
@@ -245,13 +250,14 @@ lazy val examplePreview = project
     libraryDependencies ++= V.deps(V.ascentPreview),
   )
 
-lazy val embedDceCheck = taskKey[Unit]("Fail if the embed bundle imports preact")
+lazy val embedDceCheck  = taskKey[Unit]("Fail if the embed bundle imports preact")
+lazy val embedStageHost = taskKey[File]("Stage React/Preact host pages next to the embed bundle")
 
-// Unpublished Scala.js fixture: Host.useReact + exported adapters, no spliceLibs.
-// `embed / embedDceCheck` fails if the linked module still imports Preact.
+// Unpublished Scala.js fixture: Host.useReact / Host.usePreactHost, no spliceLibs.
+// Host UMD scripts are fetched with sha256 into the preview tree, not spliced in.
 lazy val embed = project
   .in(file("embed"))
-  .enablePlugins(ScalaJSPlugin)
+  .enablePlugins(ScalaJSPlugin, AscentPreviewPlugin)
   .dependsOn(core, preactileConduit)
   .settings(
     name           := "preactile-embed",
@@ -262,20 +268,59 @@ lazy val embed = project
     Test / loadedTestFrameworks := Def.uncached(Map.empty),
     Test / definedTests         := Def.uncached(Nil),
     Test / definedTestNames     := Def.uncached(Nil),
+    scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    Compile / mainClass             := Some("preactile.embed.Main"),
+    spliceFastOutput                := Def.uncached(ascentPreviewRoot.value / "fast.js"),
+    ascentPreviewPort               := AscentPreviewPort(8767),
+    ascentPreviewClasspath          := Def.uncached((LocalProject("examplePreview") / Compile / fullClasspath).value),
+    ascentPreviewRebuild := Def.uncached {
+      val _ = embedStageHost.value
+      ()
+    },
+    embedStageHost := Def.uncached {
+      val dest  = ascentPreviewStage.value
+      val cache = (ThisBuild / baseDirectory).value / "target" / "embed-host-pins"
+      IO.createDirectory(dest / "vendor")
+      IO.createDirectory(cache)
+      def pin(name: String, url: String, sha: String): Unit =
+        val cached = cache / name
+        val body =
+          if cached.exists then IO.readBytes(cached)
+          else
+            val bytes = java.net.URI.create(url).toURL.openStream().readAllBytes()
+            IO.write(cached, bytes)
+            bytes
+        val hex = java.security.MessageDigest.getInstance("SHA-256").digest(body).map(b => f"$b%02x").mkString
+        if hex != sha then
+          cached.delete()
+          sys.error(s"embedStageHost: sha256 mismatch for $name: $hex")
+        IO.copyFile(cached, dest / "vendor" / name)
+      pin(
+        "react.development.js",
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.development.js",
+        "28348fef6cb0ed8b2ceeb22deaf824428fd13875d84c73d38f77dd216fc24e7f",
+      )
+      pin(
+        "react-dom.development.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.development.js",
+        "f9044a5e9c39db8bb1a204dff924e526ec0a621e695bb69de1035811be8709e4",
+      )
+      pin(
+        "preact.umd.js",
+        "https://cdn.jsdelivr.net/npm/preact@10.26.4/dist/preact.umd.js",
+        "6ba7a5946990492ba7fc40e79530a1164739f586077070e558878a51d341c0b5",
+      )
+      IO.copyFile(baseDirectory.value / "preact.html", dest / "preact.html")
+      dest
+    },
     embedDceCheck := Def.uncached {
-      val _   = (Compile / fastLinkJS).value
-      val dir = (Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value
-      val js  = (dir ** "*.js").get().filterNot(_.getName.endsWith(".map"))
-      if js.isEmpty then sys.error(s"embed fastLinkJS produced no JS in $dir")
-      val hits = js.flatMap { f =>
-        val txt = IO.read(f)
-        if txt.contains("from \"preact\"") || txt.contains("from 'preact'") ||
+      val js  = (Compile / spliceFast).value
+      val txt = IO.read(js)
+      val hits =
+        txt.contains("from \"preact\"") || txt.contains("from 'preact'") ||
           txt.contains("require(\"preact\")") || txt.contains("require('preact')") ||
-          txt.contains("preact.module.js")
-        then Some(f.getName)
-        else None
-      }
-      if hits.nonEmpty then sys.error(s"embed bundle still imports preact: ${hits.mkString(", ")}")
+          txt.contains("preact.module.js") || txt.contains("preact.umd.js")
+      if hits then sys.error(s"embed bundle still imports preact: ${js.getName}")
     },
   )

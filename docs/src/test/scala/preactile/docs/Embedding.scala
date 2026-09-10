@@ -14,6 +14,10 @@ splice a second Preact.
 
 Owned apps are unchanged: `preactile.preact.render` still installs spliced Preact.
 
+This repo's unpublished `embed` fixture stages a React 18 page (`/`) and a host
+Preact page (`/preact.html`) under `sbt embed/ascentPreview` (port 8767). Chekhov
+drives both from `EmbedHostSpec`.
+
 ## Install the host once
 
 At module init, before any `E.div` / `Component.apply`:
