@@ -5,7 +5,7 @@ import scala.scalajs.js
 import preactile.*
 import preactile.dictionaryNames.*
 
-private[preactile] object Adapters:
+object Adapters:
 
   def statelessType[P](c: Component[P]): js.Dynamic =
     Host.current.componentClass.fold(statelessFunction(c))(_ => statelessClass(c, Host.scalaProps[P]))

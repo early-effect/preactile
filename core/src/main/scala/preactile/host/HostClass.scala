@@ -4,7 +4,7 @@ import scala.scalajs.js
 
 import preactile.Host
 
-private[preactile] object HostClass:
+object HostClass:
 
   def extend(base: js.Dynamic): js.Dynamic =
     if base == null || js.isUndefined(base) then

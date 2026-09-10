@@ -7,7 +7,7 @@ import preactile.dictionaryNames.*
 
 import conduit.*
 
-private[preactile] object ConduitAdapters:
+object ConduitAdapters:
 
   def hostType[P, M <: Product, Ev, S](c: ConduitComponent[P, M, Ev, S]): js.Dynamic =
     conduitClass(c, Host.scalaProps[P])
