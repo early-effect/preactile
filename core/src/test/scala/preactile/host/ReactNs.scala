@@ -26,4 +26,3 @@ object ReactAct:
   @js.native
   @JSImport("react", "act")
   def apply(callback: js.Function0[js.Any]): js.Any = js.native
-end ReactAct
