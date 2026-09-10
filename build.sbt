@@ -256,8 +256,11 @@ lazy val embed = project
   .settings(
     name           := "preactile-embed",
     publish / skip := true,
-    Test / fork    := false,
-    test / skip    := true,
+    Test / fork := false,
+    // No tests in this fixture. Empty sources so Chekhov/Scala.js testFull does not
+    // link the ES module and try to run it as CJS.
+    Test / sources          := Def.uncached(Nil),
+    Test / unmanagedSources := Def.uncached(Nil),
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     embedDceCheck := Def.uncached {
       val _   = (Compile / fastLinkJS).value

@@ -11,7 +11,6 @@ object ReactNs extends js.Object:
   val Component: js.Dynamic                                                       = js.native
   val Children: js.Dynamic                                                        = js.native
   val version: String                                                             = js.native
-end ReactNs
 
 @js.native
 @JSImport("react-dom/client", JSImport.Namespace)
@@ -22,9 +21,9 @@ object ReactDomClient extends js.Object:
 trait ReactRoot extends js.Object:
   def render(element: js.Any): Unit = js.native
   def unmount(): Unit               = js.native
-end ReactRoot
 
 object ReactAct:
   @js.native
   @JSImport("react", "act")
   def apply(callback: js.Function0[js.Any]): js.Any = js.native
+end ReactAct
