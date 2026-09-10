@@ -57,8 +57,8 @@ object Main:
   end main
 
   private def mountReact(): Unit =
-    val react = js.Dynamic.global.React
-    val domNs = js.Dynamic.global.ReactDOM
+    val react = js.Dynamic.global.window.selectDynamic("React")
+    val domNs = js.Dynamic.global.window.selectDynamic("ReactDOM")
     Host.useReact(react)
     val greeting = asFunctionComponent(Greeting, d => d.label.asInstanceOf[String])
     val stateful = asStatefulComponent(ClickCounter, _ => ())
@@ -76,7 +76,7 @@ object Main:
   end mountReact
 
   private def mountPreact(): Unit =
-    val preact = js.Dynamic.global.preact
+    val preact = js.Dynamic.global.window.selectDynamic("preact")
     Host.usePreactHost(preact)
     val greeting = asFunctionComponent(Greeting, d => d.label.asInstanceOf[String])
     val stateful = asStatefulComponent(ClickCounter, _ => ())

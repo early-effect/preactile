@@ -2,6 +2,8 @@ package preactile.docs
 
 import scala.scalajs.js
 
+import org.scalajs.dom
+
 import specular.client.Mounter
 
 import preactile.*
@@ -40,8 +42,13 @@ end EmbedTodo
 
 object EmbedReactDemo:
 
-  private def reactNs: js.Dynamic  = js.Dynamic.global.React
-  private def reactDom: js.Dynamic = js.Dynamic.global.ReactDOM
+  // Look up host UMD on `window`, not `js.Dynamic.global.React`. The latter is a free
+  // identifier and spliceFull/Closure rejects it as undeclared.
+  private def browserGlobal(name: String): js.Dynamic =
+    dom.window.asInstanceOf[js.Dynamic].selectDynamic(name)
+
+  private def reactNs: js.Dynamic  = browserGlobal("React")
+  private def reactDom: js.Dynamic = browserGlobal("ReactDOM")
 
   private def ensureReact(): Unit =
     if !Host.isInstalled then Host.useReact(reactNs)
