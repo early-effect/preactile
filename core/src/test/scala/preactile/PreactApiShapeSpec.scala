@@ -7,8 +7,8 @@ import zio.test.*
 
 /** Tests that verify our assumptions about Preact 10.x's Component API shape match reality.
   *
-  * These are critical: if any of these fail, the Host adapters and StatefulComponent need updating to match
-  * actual Preact behavior.
+  * These are critical: if any of these fail, the Host adapters and StatefulComponent need updating to match actual
+  * Preact behavior.
   */
 object PreactApiShapeSpec extends PreactileSpec:
 
