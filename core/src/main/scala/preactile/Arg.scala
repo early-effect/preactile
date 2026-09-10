@@ -8,8 +8,6 @@ import org.scalajs.dom.Element
 import preactile.dsl.css.Styles.DeclarationOrSelector
 import preactile.dsl.css.Styles.KeyFrames
 import preactile.dsl.css.Styles.MediaQuery
-import preactile.impl.Preact.ChildJS
-import preactile.impl.Preact.ComponentChildren
 import preactile.impl.VNodeJS
 
 sealed trait Arg:
@@ -20,7 +18,7 @@ case object Empty extends Arg
 
 trait Child extends Arg:
   self =>
-  def value: Preact.ChildJS
+  def value: js.Any
   override def when(pred: => Boolean): Child = if pred then self else EmptyChild
 
 trait VNode extends Child:
@@ -30,8 +28,8 @@ trait VNode extends Child:
     vNode.ref.foreach(props.update("ref", _))
     vNode.key.foreach(props.update("key", _))
     props.update(name, t)
-    Preact.h(
-      vNode.`type`.asInstanceOf[js.Dynamic],
+    Host.h(
+      vNode.`type`.asInstanceOf[js.Any],
       props,
       vNode.rawChildren,
     )
@@ -50,19 +48,18 @@ trait VNode extends Child:
     )
 
     val safe: js.Function1[js.Any, Unit] = {
-      case null                    => ()
-      case e: dom.Element          => combined(e)
-      case i: InstanceFacade[?, ?] => i.base.foreach(combined)
+      case null           => ()
+      case e: dom.Element => combined(e)
       case x: js.Any =>
         Option(x.asInstanceOf[js.Dynamic].base).map(_.asInstanceOf[dom.Element]).foreach(combined)
     }
     withT(name = "ref", safe)
   end withRef
 
-  def value: ChildJS = vNode
+  def value: js.Any = vNode
   def vNode: VNodeJS
-  def rawChildren: ComponentChildren = vNode.props.children.asInstanceOf[ComponentChildren]
-  def childArray: js.Array[VNodeJS]  = Preact.toChildArray(rawChildren)
+  def rawChildren: js.Any           = vNode.props.children
+  def childArray: js.Array[VNodeJS] = Host.toChildArray(rawChildren)
 
 end VNode
 
@@ -70,11 +67,14 @@ object VNode:
   given Conversion[VNode, VNodeJS] = _.vNode
 
 object Child:
-  given Conversion[Option[Child], Child]  = _.getOrElse(EmptyChild)
-  given Conversion[Child, Preact.ChildJS] = _.value
+  given Conversion[Option[Child], Child] = _.getOrElse(EmptyChild)
+  given Conversion[Child, js.Any]        = _.value
 
 case object EmptyChild extends Child:
-  override def value: ChildJS = null
+  override def value: js.Any = null
+
+final case class HostChild(raw: js.Any) extends Child:
+  override def value: js.Any = raw
 
 trait Attribute extends Arg:
   def name: String
@@ -95,10 +95,10 @@ final case class Declaration(property: String, value: String) extends Arg with D
   def important: Declaration = copy(value = s"$value !important")
 
 final case class StringArg(s: String) extends Child:
-  override def value: Preact.ChildJS = s
+  override def value: js.Any = s
 
 final case class DoubleArg(d: Double) extends Child:
-  override def value: Preact.ChildJS = d.toString
+  override def value: js.Any = d.toString
 
 object Arg:
   given Conversion[String, Arg]        = StringArg(_)

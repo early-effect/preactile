@@ -13,7 +13,10 @@ trait PreactileComponent[Props, State]:
 
   import dictionaryNames.*
 
-  def instanceConstructor: js.Dynamic
+  /** Host class or function used when this component is nested under an installed [[Host]]. */
+  def embedType: js.Dynamic = host.Adapters.statelessType(asInstanceOf[Component[Props]])
+
+  private[preactile] def buildHostType(): js.Dynamic = embedType
 
   lazy val classForClass = ClassSelector.makeCssClass(this.getClass.getName)
 
@@ -42,10 +45,9 @@ trait PreactileComponent[Props, State]:
       )*
     )
 
-  def apply(props: Props): VNode = Preactile
-    .h(instanceConstructor, baseDictionary(props))
+  def apply(props: Props): VNode = Preactile.h(Host.current.componentType(this), baseDictionary(props))
 
-  def addSelectors(n: VNode, facade: InstanceFacade[Props, State]): VNode =
+  def addSelectors(n: VNode, facade: Instance): VNode =
     type CI = ClassSelector & InstanceDataSelector
     this match
       case selectors: CI =>

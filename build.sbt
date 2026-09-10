@@ -29,6 +29,7 @@ zipxCapabilities += Capability
       docs / specularSite,
       docs / chekhovInstall,
       testFull,
+      embed / embedDceCheck,
     ),
   )
   .withNodeVersion(NodeVersion("24"))
@@ -94,7 +95,7 @@ ThisBuild / developers := List(
 
 lazy val root = project
   .in(file("."))
-  .aggregate(core, preactileConduit, docs, docsClient, example, examplePreview)
+  .aggregate(core, preactileConduit, docs, docsClient, example, examplePreview, embed)
   .settings(
     name           := "preactile-root",
     publish / skip := true,
@@ -113,7 +114,8 @@ lazy val core = project
     // core/node_modules (NODE_PATH). JSDOMNodeJSEnv is vendored in
     // project/JSDOMNodeJSEnv.scala (scalajs-env-jsdom-nodejs has no sbt 2 artifact).
     Test / jsEnv := Def.uncached { new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv() },
-    // Make core/node_modules visible to Node.js when running tests from project root.
+    // Make core/node_modules visible to Node.js when running tests from project root
+    // (jsdom, preact, and react / react-dom for host-embed tests).
     Test / envVars += ("NODE_PATH" -> (baseDirectory.value / "node_modules").getAbsolutePath),
     // Tests use CommonJS so vm.runInThisContext can execute them (no dynamic import needed).
     Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
@@ -123,12 +125,23 @@ lazy val core = project
 lazy val preactileConduit = project
   .in(file("conduit"))
   .enablePlugins(ScalaJSPlugin)
-  .dependsOn(core)
+  .dependsOn(core % "compile->compile;test->test")
   .settings(
     name := "preactile-conduit",
     // Published library: spliceLibs stays at the default (empty), so splice is inert here.
     Test / fork := false, // ChekhovPlugin forces fork := true; Scala.js tests must not fork
-    libraryDependencies ++= V.deps(V.conduit, V.scalaJavaTime, V.scalaJavaTimeTzdb),
+    Test / jsEnv := Def.uncached { new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv() },
+    Test / envVars += ("NODE_PATH" -> ((ThisBuild / baseDirectory).value / "core" / "node_modules").getAbsolutePath),
+    Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+    libraryDependencies ++= V.deps(
+      V.conduit,
+      V.scalaJavaTime,
+      V.scalaJavaTimeTzdb,
+      V.zio.test,
+      V.zioTest,
+      V.zioTestSbt,
+      V.scalajsDom,
+    ),
   )
 
 // docs: JVM-only Specular project (DocSpecSuites run as tests, site builds on JVM).
@@ -230,4 +243,35 @@ lazy val examplePreview = project
     publish / skip := true,
     test / skip    := true,
     libraryDependencies ++= V.deps(V.ascentPreview),
+  )
+
+lazy val embedDceCheck = taskKey[Unit]("Fail if the embed bundle imports preact")
+
+// Unpublished Scala.js fixture: Host.useReact + exported adapters, no spliceLibs.
+// `embed / embedDceCheck` fails if the linked module still imports Preact.
+lazy val embed = project
+  .in(file("embed"))
+  .enablePlugins(ScalaJSPlugin)
+  .dependsOn(core, preactileConduit)
+  .settings(
+    name           := "preactile-embed",
+    publish / skip := true,
+    Test / fork    := false,
+    test / skip    := true,
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    embedDceCheck := Def.uncached {
+      val _   = (Compile / fastLinkJS).value
+      val dir = (Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value
+      val js  = (dir ** "*.js").get().filterNot(_.getName.endsWith(".map"))
+      if js.isEmpty then sys.error(s"embed fastLinkJS produced no JS in $dir")
+      val hits = js.flatMap { f =>
+        val txt = IO.read(f)
+        if txt.contains("from \"preact\"") || txt.contains("from 'preact'") ||
+          txt.contains("require(\"preact\")") || txt.contains("require('preact')") ||
+          txt.contains("preact.module.js")
+        then Some(f.getName)
+        else None
+      }
+      if hits.nonEmpty then sys.error(s"embed bundle still imports preact: ${hits.mkString(", ")}")
+    },
   )

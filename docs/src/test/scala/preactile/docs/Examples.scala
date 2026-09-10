@@ -19,7 +19,8 @@ component mounted into the docs site:
 - [Element DSL](/ElementDsl): attributes, events, and `when` for conditional content.
 - [Styling](/Styling): `CssClass` plus inline `A.style` declarations.
 
-Setup and bundling (sbt-splice, mount code) is on [Mounting](/Mounting).
+Setup and bundling (sbt-splice, mount code) is on [Mounting](/Mounting). Host React
+and host Preact apps are on [Embedding](/Embedding).
 """
   )
 end Examples

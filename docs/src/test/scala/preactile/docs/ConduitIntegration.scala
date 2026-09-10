@@ -250,7 +250,8 @@ object styles:
 ```
 """,
     md"""
-See the [Examples](/Examples) page for the other live demos.
+See the [Examples](/Examples) page for the other live demos. To export a conduit
+component into a host React tree, see [Embedding](/Embedding).
 """,
   )
 

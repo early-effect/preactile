@@ -6,7 +6,8 @@ import zio.*
 import zio.test.*
 
 abstract class PreactileSpec extends ZIOSpecDefault:
-  def render(vn: VNode): dom.Element =
+  def render(vn: => VNode): dom.Element =
+    if Host.isInstalled && Host.kind != HostKind.Preact then Host.reset()
     preact.render(vn, parent)
     parent
 

@@ -15,6 +15,7 @@ object BuildSite extends DocsSite:
     ElementDsl.doc,
     Styling.doc,
     Mounting.doc,
+    Embedding.doc,
     Examples.doc,
   )
 

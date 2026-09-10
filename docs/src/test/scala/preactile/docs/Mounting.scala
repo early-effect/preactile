@@ -147,6 +147,7 @@ This triggers `componentWillUnmount` lifecycle hooks and cleans up subscriptions
 - See [Components](/Components) for building your first component
 - See [Stateful Components](/StatefulComponents) for managing internal state
 - See [Conduit Integration](/ConduitIntegration) for effect-native state management
+- See [Embedding](/Embedding) to render Preactile inside a host React or Preact app
 """
   )
 

@@ -6,7 +6,6 @@ import scala.scalajs.js.annotation.JSImport
 import org.scalajs.dom
 
 import preactile.*
-import preactile.impl.Preact.AnyDictionary
 
 abstract class AorC
 
@@ -14,7 +13,8 @@ abstract class AorC
 @JSImport("preact", JSImport.Namespace)
 object Preact extends js.Object:
 
-  val Fragment: js.Dynamic = js.native
+  val Fragment: js.Dynamic  = js.native
+  val Component: js.Dynamic = js.native
 
   type AnyDictionary = js.Dictionary[js.Any]
 
@@ -41,16 +41,3 @@ object Preact extends js.Object:
 
   def rerender(): Unit = js.native
 end Preact
-
-object Preactile:
-
-  def h(`type`: js.Dynamic, params: AnyDictionary, children: js.Array[Child]): VNodeJS =
-    Preact.h(`type`, params, children.map(_.value))
-
-  def h(`type`: String, params: AnyDictionary, children: js.Array[Child]): VNodeJS =
-    Preact.h(`type`, params, children.map(_.value))
-
-  def h(`type`: js.Dynamic, params: AnyDictionary): VNodeJS = Preact.h(`type`, params)
-
-  def h(`type`: String, params: AnyDictionary): VNodeJS = Preact.h(`type`, params)
-end Preactile

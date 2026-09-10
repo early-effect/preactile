@@ -16,7 +16,7 @@ component-based reactive programming to the JVM ecosystem.
 - **Familiar**: If you know React or Preact, the mental model transfers directly.
 - **Lightweight**: Preact's tiny footprint (3KB gzipped) keeps your bundles small.
 - **Type-safe**: Full Scala 3 type safety for components, props, and events.
-- **Interoperable**: Drop in alongside any JS library or framework.
+- **Interoperable**: Embed in a host React 18 (or host Preact) tree; see [Embedding](/Embedding).
 
 ## Live demo
 
