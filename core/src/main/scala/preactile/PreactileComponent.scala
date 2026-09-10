@@ -38,12 +38,7 @@ trait PreactileComponent[Props, State]:
   ): Unit = ()
 
   def baseDictionary(props: Props): Dictionary[js.Any] =
-    js.Dictionary(
-      Seq[(String, js.Any)](
-        (PropsFieldName, props.asInstanceOf[js.Any]),
-        ("key", classForClass), // this is a precaution - I may want to make this optional
-      )*
-    )
+    js.Dictionary((PropsFieldName, props.asInstanceOf[js.Any]))
 
   def apply(props: Props): VNode = Preactile.h(Host.current.componentType(this), baseDictionary(props))
 

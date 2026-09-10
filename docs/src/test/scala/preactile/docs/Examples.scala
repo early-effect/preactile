@@ -20,7 +20,8 @@ component mounted into the docs site:
 - [Styling](/Styling): `CssClass` plus inline `A.style` declarations.
 
 Setup and bundling (sbt-splice, mount code) is on [Mounting](/Mounting). Host React
-and host Preact apps are on [Embedding](/Embedding).
+is on [Embedding in React](/EmbeddingInReact); host Preact is on
+[Embedding in Preact](/EmbeddingInPreact).
 """
   )
 end Examples

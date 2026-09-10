@@ -209,17 +209,108 @@ object Host:
     else
       val out = js.Dictionary[js.Any]()
       params.foreach { case (k, v) =>
-        out.update(reactPropName(k), v)
+        val nk = reactPropName(k)
+        out.update(nk, if nk == "style" then camelStyle(v) else v)
       }
       out
 
   private def reactPropName(name: String): String =
     name match
-      case "class" => "className"
-      case "for"   => "htmlFor"
-      case n if n.startsWith("on") && n.length > 2 && n.charAt(2).isLower =>
-        "on" + n.charAt(2).toUpper + n.substring(3)
+      case "class"      => "className"
+      case "for"        => "htmlFor"
+      case "ondblclick" => "onDoubleClick"
+      case n if n.startsWith("on") =>
+        reactDomEvents.find(_.equalsIgnoreCase(n)).getOrElse {
+          if n.length > 2 && n.charAt(2).isLower then "on" + n.charAt(2).toUpper + n.substring(3)
+          else n
+        }
       case other => other
+
+  private def camelStyle(v: js.Any): js.Any =
+    if v == null || js.isUndefined(v) then v
+    else
+      val d = v.asInstanceOf[js.Dictionary[js.Any]]
+      val o = js.Dictionary[js.Any]()
+      d.foreach { case (k, sv) => o.update(cssToReact(k), sv) }
+      o
+
+  private def cssToReact(name: String): String =
+    if name.startsWith("--") then name
+    else if name.startsWith("-") then cssToReact(name.drop(1)).capitalize
+    else
+      val parts = name.split('-')
+      parts.head + parts.tail.map(_.capitalize).mkString
+
+  private val reactDomEvents: Array[String] =
+    Array(
+      "onAbort",
+      "onAnimationCancel",
+      "onAnimationEnd",
+      "onAnimationIteration",
+      "onAnimationStart",
+      "onAuxClick",
+      "onBlur",
+      "onCanPlay",
+      "onCanPlayThrough",
+      "onCancel",
+      "onChange",
+      "onClick",
+      "onClose",
+      "onContextMenu",
+      "onCopy",
+      "onCueChange",
+      "onCut",
+      "onDoubleClick",
+      "onDurationChange",
+      "onEnded",
+      "onError",
+      "onFocus",
+      "onGotPointerCapture",
+      "onInput",
+      "onInvalid",
+      "onKeyDown",
+      "onKeyPress",
+      "onKeyUp",
+      "onLoad",
+      "onLoadEnd",
+      "onLoadStart",
+      "onLoadedData",
+      "onLoadedMetadata",
+      "onLostPointerCapture",
+      "onMouseDown",
+      "onMouseEnter",
+      "onMouseLeave",
+      "onMouseMove",
+      "onMouseOut",
+      "onMouseOver",
+      "onMouseUp",
+      "onPaste",
+      "onPause",
+      "onPlay",
+      "onPlaying",
+      "onPointerCancel",
+      "onPointerDown",
+      "onPointerEnter",
+      "onPointerLeave",
+      "onPointerMove",
+      "onPointerOut",
+      "onPointerOver",
+      "onPointerUp",
+      "onReset",
+      "onResize",
+      "onScroll",
+      "onSelect",
+      "onSelectionChange",
+      "onSelectStart",
+      "onSubmit",
+      "onTouchCancel",
+      "onTouchEnd",
+      "onTouchMove",
+      "onTouchStart",
+      "onTransitionCancel",
+      "onTransitionEnd",
+      "onWheel",
+    )
 
   private[preactile] val defaultToChildArray: js.Function1[js.Any, js.Array[js.Any]] =
     (children: js.Any) =>
