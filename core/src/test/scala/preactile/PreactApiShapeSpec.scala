@@ -7,15 +7,15 @@ import zio.test.*
 
 /** Tests that verify our assumptions about Preact 10.x's Component API shape match reality.
   *
-  * These are critical: if any of these fail, the core bindings in ComponentJS/StatefulComponent need updating to match
-  * actual Preact behavior.
+  * These are critical: if any of these fail, the Host adapters and StatefulComponent need updating to match actual
+  * Preact behavior.
   */
 object PreactApiShapeSpec extends PreactileSpec:
 
   val specs = suiteAll("Preact API shape"):
 
     test("render(props, state) receives props as an argument"):
-      // Our ComponentJS binding declares renderJS(props, state). This test proves Preact actually
+      // Host adapters read props from the render arguments. This test proves Preact actually
       // passes those arguments rather than expecting us to read this.props.
       class RenderArgComponent extends StatefulComponent[String, Unit]:
         override def initialState(name: String): Unit = ()

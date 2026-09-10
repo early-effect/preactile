@@ -2,9 +2,6 @@ package preactile
 
 import scala.scalajs.js
 import scala.scalajs.js.UndefOr
-import scala.scalajs.js.annotation.JSName
-
-import preactile.impl.VNodeJS
 
 trait Component[Props] extends PreactileComponent[Props, Nothing]:
   theComponent =>
@@ -16,33 +13,7 @@ trait Component[Props] extends PreactileComponent[Props, Nothing]:
 
   def shouldUpdate(nextProps: Props, previous: Instance): Boolean = nextProps != previous.props
 
-  override lazy val instanceConstructor: js.Dynamic = js.constructorOf[StatelessInstance]
-
-  final private class StatelessInstance extends InstanceFacade[Props, Nothing]:
-
-    override def componentDidMount(): Unit = didMount(this)
-
-    override def componentWillMount(): Unit = willMount(this)
-
-    override def componentWillUnmount(): Unit = willUnMount(this)
-
-    @JSName("render")
-    override def renderJS(props: js.Dynamic, state: js.Dynamic): VNodeJS =
-      addSelectors(render(lookupProps(props)), this)
-
-    override def shouldComponentUpdate(nextProps: js.Dynamic, nextState: js.Dynamic, nextContext: js.Dynamic): Boolean =
-      shouldUpdate(lookupProps(nextProps), this)
-
-    override def componentDidUpdate(oldProps: js.Dynamic, oldState: js.Dynamic, snapshot: js.Dynamic): Unit =
-      didUpdate(
-        oldProps = lookupProps(oldProps),
-        oldState = lookupState(oldState),
-        instance = this,
-        oldInstance = snapshot.asInstanceOf[UndefOr[PreactileComponent[Props, Nothing]#Instance]],
-      )
-
-    override def componentDidCatch(e: js.Error): Unit = didCatch(e, this)
-  end StatelessInstance
+  override def embedType: js.Dynamic = host.Adapters.statelessType(theComponent)
 end Component
 
 object Component:

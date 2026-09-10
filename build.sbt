@@ -28,7 +28,9 @@ zipxCapabilities += Capability
     command = zipxTasks.session(
       docs / specularSite,
       docs / chekhovInstall,
+      embed / embedStageHost,
       testFull,
+      embed / embedDceCheck,
     ),
   )
   .withNodeVersion(NodeVersion("24"))
@@ -94,7 +96,7 @@ ThisBuild / developers := List(
 
 lazy val root = project
   .in(file("."))
-  .aggregate(core, preactileConduit, docs, docsClient, example, examplePreview)
+  .aggregate(core, preactileConduit, docs, docsClient, example, examplePreview, embed)
   .settings(
     name           := "preactile-root",
     publish / skip := true,
@@ -113,7 +115,8 @@ lazy val core = project
     // core/node_modules (NODE_PATH). JSDOMNodeJSEnv is vendored in
     // project/JSDOMNodeJSEnv.scala (scalajs-env-jsdom-nodejs has no sbt 2 artifact).
     Test / jsEnv := Def.uncached { new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv() },
-    // Make core/node_modules visible to Node.js when running tests from project root.
+    // Make core/node_modules visible to Node.js when running tests from project root
+    // (jsdom, preact, and react / react-dom for host-embed tests).
     Test / envVars += ("NODE_PATH" -> (baseDirectory.value / "node_modules").getAbsolutePath),
     // Tests use CommonJS so vm.runInThisContext can execute them (no dynamic import needed).
     Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
@@ -123,12 +126,23 @@ lazy val core = project
 lazy val preactileConduit = project
   .in(file("conduit"))
   .enablePlugins(ScalaJSPlugin)
-  .dependsOn(core)
+  .dependsOn(core % "compile->compile;test->test")
   .settings(
     name := "preactile-conduit",
     // Published library: spliceLibs stays at the default (empty), so splice is inert here.
     Test / fork := false, // ChekhovPlugin forces fork := true; Scala.js tests must not fork
-    libraryDependencies ++= V.deps(V.conduit, V.scalaJavaTime, V.scalaJavaTimeTzdb),
+    Test / jsEnv := Def.uncached { new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv() },
+    Test / envVars += ("NODE_PATH" -> ((ThisBuild / baseDirectory).value / "core" / "node_modules").getAbsolutePath),
+    Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+    libraryDependencies ++= V.deps(
+      V.conduit,
+      V.scalaJavaTime,
+      V.scalaJavaTimeTzdb,
+      V.zio.test,
+      V.zioTest,
+      V.zioTestSbt,
+      V.scalajsDom,
+    ),
   )
 
 // docs: JVM-only Specular project (DocSpecSuites run as tests, site builds on JVM).
@@ -183,6 +197,10 @@ lazy val docs = project
     // pinned Playwright installed by `docs/chekhovInstall`, auto-discovered from the Chekhov
     // cache; in CI browsers come from PLAYWRIGHT_BROWSERS_PATH (zipxEnv above).
     Test / fork := true,
+    Test / resourceGenerators += Def.task {
+      val _ = (embed / embedStageHost).value
+      Seq.empty[File]
+    }.taskValue,
   )
 
 // docsClient: ScalaJS project that mounts interactive examples into SSR-rendered DOM elements.
@@ -230,4 +248,79 @@ lazy val examplePreview = project
     publish / skip := true,
     test / skip    := true,
     libraryDependencies ++= V.deps(V.ascentPreview),
+  )
+
+lazy val embedDceCheck  = taskKey[Unit]("Fail if the embed bundle imports preact")
+lazy val embedStageHost = taskKey[File]("Stage React/Preact host pages next to the embed bundle")
+
+// Unpublished Scala.js fixture: Host.useReact / Host.usePreactHost, no spliceLibs.
+// Host UMD scripts are fetched with sha256 into the preview tree, not spliced in.
+lazy val embed = project
+  .in(file("embed"))
+  .enablePlugins(ScalaJSPlugin, AscentPreviewPlugin)
+  .dependsOn(core, preactileConduit)
+  .settings(
+    name           := "preactile-embed",
+    publish / skip := true,
+    Test / fork    := false,
+    // ES-module DCE fixture. Disable the Test config so root testFull does not
+    // discover frameworks and Node-execute the bundle as CJS.
+    Test / loadedTestFrameworks := Def.uncached(Map.empty),
+    Test / definedTests         := Def.uncached(Nil),
+    Test / definedTestNames     := Def.uncached(Nil),
+    scalaJSUseMainModuleInitializer := true,
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    Compile / mainClass             := Some("preactile.embed.Main"),
+    spliceFastOutput                := Def.uncached(ascentPreviewRoot.value / "fast.js"),
+    ascentPreviewPort               := AscentPreviewPort(8767),
+    ascentPreviewClasspath          := Def.uncached((LocalProject("examplePreview") / Compile / fullClasspath).value),
+    ascentPreviewRebuild := Def.uncached {
+      val _ = embedStageHost.value
+      ()
+    },
+    embedStageHost := Def.uncached {
+      val dest  = ascentPreviewStage.value
+      val cache = (ThisBuild / baseDirectory).value / "target" / "embed-host-pins"
+      IO.createDirectory(dest / "vendor")
+      IO.createDirectory(cache)
+      def pin(name: String, url: String, sha: String): Unit =
+        val cached = cache / name
+        val body =
+          if cached.exists then IO.readBytes(cached)
+          else
+            val bytes = java.net.URI.create(url).toURL.openStream().readAllBytes()
+            IO.write(cached, bytes)
+            bytes
+        val hex = java.security.MessageDigest.getInstance("SHA-256").digest(body).map(b => f"$b%02x").mkString
+        if hex != sha then
+          cached.delete()
+          sys.error(s"embedStageHost: sha256 mismatch for $name: $hex")
+        IO.copyFile(cached, dest / "vendor" / name)
+      pin(
+        "react.development.js",
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.development.js",
+        "28348fef6cb0ed8b2ceeb22deaf824428fd13875d84c73d38f77dd216fc24e7f",
+      )
+      pin(
+        "react-dom.development.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.development.js",
+        "f9044a5e9c39db8bb1a204dff924e526ec0a621e695bb69de1035811be8709e4",
+      )
+      pin(
+        "preact.umd.js",
+        "https://cdn.jsdelivr.net/npm/preact@10.26.4/dist/preact.umd.js",
+        "6ba7a5946990492ba7fc40e79530a1164739f586077070e558878a51d341c0b5",
+      )
+      IO.copyFile(baseDirectory.value / "preact.html", dest / "preact.html")
+      dest
+    },
+    embedDceCheck := Def.uncached {
+      val js  = (Compile / spliceFast).value
+      val txt = IO.read(js)
+      val hits =
+        txt.contains("from \"preact\"") || txt.contains("from 'preact'") ||
+          txt.contains("require(\"preact\")") || txt.contains("require('preact')") ||
+          txt.contains("preact.module.js") || txt.contains("preact.umd.js")
+      if hits then sys.error(s"embed bundle still imports preact: ${js.getName}")
+    },
   )

@@ -250,7 +250,8 @@ object styles:
 ```
 """,
     md"""
-See the [Examples](/Examples) page for the other live demos.
+See the [Examples](/Examples) page for the other live demos. Live host exports are
+on [Embedding in React](/EmbeddingInReact) and [Embedding in Preact](/EmbeddingInPreact).
 """,
   )
 

@@ -15,6 +15,9 @@ object BuildSite extends DocsSite:
     ElementDsl.doc,
     Styling.doc,
     Mounting.doc,
+    Embedding.doc,
+    EmbeddingReact.doc,
+    EmbeddingPreact.doc,
     Examples.doc,
   )
 
@@ -41,7 +44,8 @@ object BuildSite extends DocsSite:
   override def layers = EarlyEffectTheme.layers
 
   override def afterBuild(out: Path, result: SiteOutput): Task[Unit] =
-    EarlyEffectTheme.writeLogo(out) *> verifyClientBundle(out) *> classicClientScript(out) *> writeDevStamp(out)
+    EarlyEffectTheme.writeLogo(out) *> verifyClientBundle(out) *> classicClientScript(out) *>
+      injectReactHost(out) *> writeDevStamp(out)
 
   private def verifyClientBundle(out: Path): Task[Unit] =
     ZIO.attempt {
@@ -67,6 +71,35 @@ object BuildSite extends DocsSite:
           if next != html then Files.writeString(p, next)
         }
       finally dir.close()
+    }.unit
+
+  /** React 18 UMD on the Embedding in React page only. Copied from the sha256 pin cache filled by
+    * `embed/embedStageHost`.
+    */
+  private def injectReactHost(out: Path): Task[Unit] =
+    ZIO.attempt {
+      val htmlPath = out.resolve("embedding-in-react.html")
+      if Files.isRegularFile(htmlPath) then
+        val pins = out.getParent.resolve("embed-host-pins")
+        val dest = out.resolve("assets").resolve("vendor")
+        Files.createDirectories(dest)
+        Seq("react.development.js", "react-dom.development.js").foreach { name =>
+          val src = pins.resolve(name)
+          if !Files.isRegularFile(src) then
+            throw new RuntimeException(s"React host pin missing at $src; run embed/embedStageHost first.")
+          Files.copy(src, dest.resolve(name), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        }
+        val html = Files.readString(htmlPath)
+        val tag =
+          """<script src="assets/vendor/react.development.js"></script>
+<script src="assets/vendor/react-dom.development.js"></script>
+"""
+        if !html.contains("react.development.js") then
+          val next =
+            if html.contains("<head>") then html.replace("<head>", "<head>\n" + tag)
+            else tag + html
+          Files.writeString(htmlPath, next)
+      end if
     }.unit
 
   /** Stamp file watched by ascent-preview after each rebuild. Harmless on CI/Pages: SpecularClient only subscribes to
