@@ -64,6 +64,10 @@ ThisBuild / scalacOptions ++= Seq(
   "-language:implicitConversions",
 )
 
+// Zinc + Scala.js can race when several modules compile at once (missing
+// PreactileComponent.sjsir / Host$.sjsir). Serialize Compile on CI-sized machines.
+Global / concurrentRestrictions += Tags.limit(Tags.Compile, 1)
+
 // Publishing targets the Sonatype Central Portal, built into sbt 2.x (no sbt-sonatype needed).
 // Snapshots go to Central's snapshot repo; releases stage locally and are promoted by `sonaRelease`.
 publishTo := {
