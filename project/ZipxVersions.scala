@@ -22,6 +22,8 @@ object ZipxVersions extends zipx.ZipxVersions:
   val specularZioTest: Lib   = specular.mod("specular-zio-test").test
   val specularSite: Lib      = specular.mod("specular-site").test
   val specularTheme: Lib     = specular.mod("early-effect-docs-theme").test
+  // Not library()-selected. Specular already pulls zio-json; docs overrides to this row.
+  val zioJson: Lib           = Lib("dev.zio", "zio-json", "1.1.0")
   val chekhov: Lib           = Lib("rocks.earlyeffect", "chekhov-zio-test", "0.1.1").test
   val chekhovDriver: Lib     = chekhov.mod("chekhov-driver").test
   // DevReload client for the example (ascent-preview SSE). specular-core already pulls this for docsClient.

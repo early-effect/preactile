@@ -166,9 +166,7 @@ lazy val docs = project
       V.chekhov,
       V.chekhovDriver,
     ),
-    // Chekhov is published against zio-json 1.1. Specular's schema module still pulls an older one,
-    // and that older jar does not contain MacroHelpers.
-    dependencyOverrides += "dev.zio" %% "zio-json" % "1.1.0",
+    dependencyOverrides += V.moduleID(V.zioJson),
     specularMetaProject              := Some(LocalProject("core")),
     specularArtifactKind             := "library",
     specularBuildMain                := "preactile.docs.BuildSite",
