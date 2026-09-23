@@ -7,7 +7,7 @@ import zipx.*
   */
 object ZipxVersions extends zipx.ZipxVersions:
 
-  val sbt: SbtVersion     = SbtVersion("2.0.8")
+  val sbt: SbtVersion     = SbtVersion("2.1.0-M2")
   val scala: ScalaVersion = ScalaVersion("3.8.4")
 
   // Libraries
@@ -22,7 +22,7 @@ object ZipxVersions extends zipx.ZipxVersions:
   val specularZioTest: Lib   = specular.mod("specular-zio-test").test
   val specularSite: Lib      = specular.mod("specular-site").test
   val specularTheme: Lib     = specular.mod("early-effect-docs-theme").test
-  val chekhov: Lib           = Lib("rocks.earlyeffect", "chekhov-zio-test", "0.0.5").test
+  val chekhov: Lib           = Lib("rocks.earlyeffect", "chekhov-zio-test", "0.1.1").test
   val chekhovDriver: Lib     = chekhov.mod("chekhov-driver").test
   // DevReload client for the example (ascent-preview SSE). specular-core already pulls this for docsClient.
   val ascentJs: Lib = Lib("rocks.earlyeffect", "ascent-js", "0.5.0")
@@ -38,5 +38,5 @@ object ZipxVersions extends zipx.ZipxVersions:
   val scalafix: Plugin       = Plugin("ch.epfl.scala", "sbt-scalafix", "0.14.7")
   val dynverCi: Plugin       = Plugin("rocks.earlyeffect", "sbt-dynver-ci", "0.2.3")
   val specularPlugin: Plugin = Plugin("rocks.earlyeffect", "sbt-specular", "0.14.1")
-  val chekhovPlugin: Plugin  = Plugin("rocks.earlyeffect", "sbt-chekhov", "0.0.5")
+  val chekhovPlugin: Plugin  = Plugin("rocks.earlyeffect", "sbt-chekhov", "0.1.1")
   val splicePlugin: Plugin   = Plugin("rocks.earlyeffect", "sbt-splice", "0.1.0")
