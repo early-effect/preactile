@@ -12,7 +12,9 @@ V.settings
 // zipx CI configuration: the default parallel Verify policy (fmt, workflow-check,
 // advisories), plus tag-triggered publish and docs deploy.
 zipxJavaVersion := JdkVersion("25")
-zipxCapabilities += ZipxCentral.release
+zipxCapabilities += ZipxCentral.snapshots
+zipxCapabilities += ZipxCentral.pullRequestSnapshots("snapshots")
+zipxReleaseWorkflow := Some(ZipxCentral.releases)
 zipxCapabilities += ZipxDocs.pages(sbtProject = "docs")
 zipxWorkflowDispatch := true
 // The CI test job still needs Node: Chekhov E2E drives Chromium through the pinned Playwright
