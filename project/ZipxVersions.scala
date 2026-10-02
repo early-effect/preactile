@@ -7,7 +7,7 @@ import zipx.*
   */
 object ZipxVersions extends zipx.ZipxVersions:
 
-  val sbt: SbtVersion     = SbtVersion("2.1.0-M2")
+  val sbt: SbtVersion     = SbtVersion("2.1.0-M3")
   val scala: ScalaVersion = ScalaVersion("3.9.0")
 
   // Libraries
@@ -41,4 +41,4 @@ object ZipxVersions extends zipx.ZipxVersions:
   val dynverCi: Plugin       = Plugin("rocks.earlyeffect", "sbt-dynver-ci", "0.2.3")
   val specularPlugin: Plugin = Plugin("rocks.earlyeffect", "sbt-specular", "0.14.1")
   val chekhovPlugin: Plugin  = Plugin("rocks.earlyeffect", "sbt-chekhov", "0.1.1")
-  val splicePlugin: Plugin   = Plugin("rocks.earlyeffect", "sbt-splice", "0.1.0")
+  val splicePlugin: Plugin   = Plugin("rocks.earlyeffect", "sbt-splice", "0.3.1")
