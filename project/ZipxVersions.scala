@@ -10,6 +10,8 @@ object ZipxVersions extends zipx.ZipxVersions:
   val sbt: SbtVersion     = SbtVersion("2.1.0-M3")
   val scala: ScalaVersion = ScalaVersion("3.9.0")
 
+  val release = ShipGroup("preactile", "0.0.3")("core", "preactileConduit")
+
   // Libraries
   val zio: Lib               = Lib("dev.zio", "zio", "2.1.26")
   val zioTest: Lib           = zio.mod("zio-test").test
@@ -38,7 +40,6 @@ object ZipxVersions extends zipx.ZipxVersions:
   val scalajsPlugin: Plugin  = Plugin("org.scala-js", "sbt-scalajs", "1.22.0")
   val scalafmt: Plugin       = Plugin("org.scalameta", "sbt-scalafmt", "2.6.2")
   val scalafix: Plugin       = Plugin("ch.epfl.scala", "sbt-scalafix", "0.14.7")
-  val dynverCi: Plugin       = Plugin("rocks.earlyeffect", "sbt-dynver-ci", "0.2.3")
   val specularPlugin: Plugin = Plugin("rocks.earlyeffect", "sbt-specular", "0.14.1")
   val chekhovPlugin: Plugin  = Plugin("rocks.earlyeffect", "sbt-chekhov", "0.1.1")
   val splicePlugin: Plugin   = Plugin("rocks.earlyeffect", "sbt-splice", "0.3.1")
