@@ -1,5 +1,8 @@
 # preactile
-A scalajs UI library utilizing Preact
+
+Preactile is a Scala.js facade over Preact for a page that is already Preact, or that has to embed in a React 18 or Preact tree. It is not Ascent, the effect-native UI with no virtual DOM.
+
+Docs: <https://early-effect.github.io/preactile/>
 
 To run the example app:
 
@@ -20,13 +23,15 @@ For a production bundle, `sbt example/spliceFull` writes a Closure-optimized
 [![Maven Central](https://img.shields.io/maven-central/v/rocks.earlyeffect/preactile_sjs1_3.svg)](https://mvnrepository.com/artifact/rocks.earlyeffect/preactile)
 
 ```scala
-libraryDependencies += "rocks.earlyeffect" %% "preactile" % "<version>"
+libraryDependencies += "rocks.earlyeffect" %% "preactile" % "0.0.2"
 ```
+
+On a `ScalaJSPlugin` project, `%%` is the coordinate. sbt 2 appends `_sjs1`.
 
 For conduit component support:
 
 ```scala
-libraryDependencies += "rocks.earlyeffect" %% "preactile-conduit" % "<version>"
+libraryDependencies += "rocks.earlyeffect" %% "preactile-conduit" % "0.0.2"
 ```
 
 Copyright Russell White
