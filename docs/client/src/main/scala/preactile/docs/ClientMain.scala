@@ -1,5 +1,6 @@
 package preactile.docs
 
+import specular.MountKey
 import specular.client.SpecularClient
 import zio.*
 
@@ -7,16 +8,16 @@ import zio.*
 object ClientMain extends ZIOAppDefault:
 
   val mounters = Map(
-    "overview-greeting"   -> OverviewDemo.mounter,
-    "stateful-counter"    -> CounterDemo.mounter,
-    "components-demo"     -> ComponentsDemo.mounter,
-    "element-dsl-demo"    -> ElementDslDemo.mounter,
-    "styling-demo"        -> StylingDemo.mounter,
-    "conduit-todo"        -> TodoDemo.mounter,
-    "embed-react-simple"  -> EmbedReactDemo.simpleMounter,
-    "embed-react-todo"    -> EmbedReactDemo.todoMounter,
-    "embed-preact-simple" -> EmbedPreactDemo.simpleMounter,
-    "embed-preact-todo"   -> EmbedPreactDemo.todoMounter,
+    MountKey("overview-counter")    -> CounterDemo.mounter,
+    MountKey("stateful-counter")    -> CounterDemo.mounter,
+    MountKey("components-demo")     -> ComponentsDemo.mounter,
+    MountKey("element-dsl-demo")    -> ElementDslDemo.mounter,
+    MountKey("styling-demo")        -> StylingDemo.mounter,
+    MountKey("conduit-todo")        -> TodoDemo.mounter,
+    MountKey("embed-react-simple")  -> EmbedReactDemo.simpleMounter,
+    MountKey("embed-react-todo")    -> EmbedReactDemo.todoMounter,
+    MountKey("embed-preact-simple") -> EmbedPreactDemo.simpleMounter,
+    MountKey("embed-preact-todo")   -> EmbedPreactDemo.todoMounter,
   )
 
   def run = ZIO.scoped {

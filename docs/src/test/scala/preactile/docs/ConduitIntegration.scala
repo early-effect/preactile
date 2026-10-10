@@ -18,8 +18,8 @@ Add the conduit module alongside preactile (`%%` is enough on a Scala.js project
 
 ```scala
 libraryDependencies ++= Seq(
-  "rocks.earlyeffect" %% "preactile"         % "<version>",
-  "rocks.earlyeffect" %% "preactile-conduit" % "<version>",
+  "rocks.earlyeffect" %% "preactile"         % "0.0.2",
+  "rocks.earlyeffect" %% "preactile-conduit" % "0.0.2",
 )
 ```
 

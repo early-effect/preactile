@@ -154,6 +154,8 @@ lazy val docs = project
   .in(file("docs"))
   .enablePlugins(SpecularPlugin)
   .disablePlugins(ScalaJSPlugin)
+  // Cite reads core's TASTy. The docs project stays JVM; this is the symbol classpath, not a runtime link.
+  .dependsOn(core)
   .settings(
     name           := "preactile-docs",
     publish / skip := true,
@@ -165,6 +167,7 @@ lazy val docs = project
       V.specularZioTest,
       V.specularSite,
       V.specularTheme,
+      V.mermoid,
       V.chekhov,
       V.chekhovDriver,
     ),
@@ -173,9 +176,13 @@ lazy val docs = project
     specularArtifactKind             := "library",
     specularBuildMain                := "preactile.docs.BuildSite",
     specularSiteDirectory            := (ThisBuild / baseDirectory).value / "target" / "site",
-    // CI docs builds are dynver `-ci`; stripCi drops the suffix so install snippets and chrome
-    // show the last published tag instead of advertising 0.x.y-ci.
-    specularDisplayVersion := stripCi,
+    // Development compiles as `<ship>-ci` (0.0.3-ci). stripCi would turn that into 0.0.3, which is
+    // not on Central. Do not strip first. A raw version that contains -ci, +, or SNAPSHOT is shown
+    // as the last Central tag, v0.0.2. A release session's plain version is left alone.
+    specularDisplayVersion := { (raw: String) =>
+      if raw.contains("-ci") || raw.contains("+") || raw.contains("SNAPSHOT") then "0.0.2"
+      else raw
+    },
     // Production site: Closure-advanced spliced client (JDK 21+). spliceFull downloads the pinned
     // preact from jsDelivr (sha256-verified), remaps @JSImport("preact", …) into the bundle, and
     // Closures it — no Node. Runs before specularBuildMain, so create the assets dir ourselves;

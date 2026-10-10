@@ -11,7 +11,7 @@ object Examples extends DocSpecSuite:
 Live interactive demos live on the page that teaches them. Each one is a real Preactile
 component mounted into the docs site:
 
-- [Overview](/Overview): a stateless greeting (`Component[Unit]`).
+- [Overview](/Overview): the facade, then a live counter (`StatefulComponent`).
 - [Components](/Components): typed props and composition (`Button` inside a click counter).
 - [Stateful Components](/StatefulComponents): `initialState` and `setState` on a counter.
 - [Conduit Integration](/ConduitIntegration): a todo app with `Conduit.make`, lensed
