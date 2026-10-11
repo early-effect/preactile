@@ -28,7 +28,7 @@ object ZipxVersions extends zipx.ZipxVersions:
   val mermoid: Lib           = Lib("rocks.earlyeffect", "mermoid", "0.2.0").test
   // Not library()-selected. Specular already pulls zio-json; docs overrides to this row.
   val zioJson: Lib           = Lib("dev.zio", "zio-json", "1.1.0")
-  val chekhov: Lib           = Lib("rocks.earlyeffect", "chekhov-zio-test", "0.1.1").test
+  val chekhov: Lib           = Lib("rocks.earlyeffect", "chekhov-zio-test", "0.1.3").test
   val chekhovDriver: Lib     = chekhov.mod("chekhov-driver").test
   // DevReload for the example. specular-core 0.20 pulls ascent-js 0.11; the Preact demos stay Preact.
   val ascentJs: Lib = Lib("rocks.earlyeffect", "ascent-js", "0.11.0")
@@ -41,7 +41,7 @@ object ZipxVersions extends zipx.ZipxVersions:
   // the Scala.js output; sbt-ascent-preview comes in transitively from sbt-specular 0.20.0.
   val scalajsPlugin: Plugin  = Plugin("org.scala-js", "sbt-scalajs", "1.22.0")
   val scalafmt: Plugin       = Plugin("org.scalameta", "sbt-scalafmt", "2.6.2")
-  val scalafix: Plugin       = Plugin("ch.epfl.scala", "sbt-scalafix", "0.14.7")
+  val scalafix: Plugin       = Plugin("ch.epfl.scala", "sbt-scalafix", "0.14.9")
   val specularPlugin: Plugin = Plugin("rocks.earlyeffect", "sbt-specular", "0.20.0")
-  val chekhovPlugin: Plugin  = Plugin("rocks.earlyeffect", "sbt-chekhov", "0.1.1")
-  val splicePlugin: Plugin   = Plugin("rocks.earlyeffect", "sbt-splice", "0.3.2-42d1f350d30e-SNAPSHOT")
+  val chekhovPlugin: Plugin  = Plugin("rocks.earlyeffect", "sbt-chekhov", "0.1.3")
+  val splicePlugin: Plugin   = Plugin("rocks.earlyeffect", "sbt-splice", "0.3.2-c40266743ccf-SNAPSHOT")
