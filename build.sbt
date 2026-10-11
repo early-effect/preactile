@@ -176,12 +176,20 @@ lazy val docs = project
     specularArtifactKind             := "library",
     specularBuildMain                := "preactile.docs.BuildSite",
     specularSiteDirectory            := (ThisBuild / baseDirectory).value / "target" / "site",
-    // Development compiles as `<ship>-ci` (0.0.3-ci). stripCi would turn that into 0.0.3, which is
-    // not on Central. Do not strip first. A raw version that contains -ci, +, or SNAPSHOT is shown
-    // as the last Central tag, v0.0.2. A release session's plain version is left alone.
-    specularDisplayVersion := { (raw: String) =>
-      if raw.contains("-ci") || raw.contains("+") || raw.contains("SNAPSHOT") then "0.0.2"
-      else raw
+    // Chrome advertises the last published tag. Development version is the ship line
+    // plus -ci (0.0.3-ci). The docs workflow sets SPECULAR_STRIP_CI, and sbt-specular
+    // then ignores this setting and strips that suffix, which is not on Central.
+    // Update the string in the same commit that tags the next release.
+    specularDisplayVersion := { raw =>
+      val published = "0.0.2"
+      if raw.trim == published then published else published
+    },
+    // The forked builder reads -Dspecular.meta.displayVersion. Replace the stripped
+    // ship line with this setting's result.
+    specularMetaProps := Def.uncached {
+      val published = specularDisplayVersion.value("")
+      val pinned    = s"-Dspecular.meta.displayVersion=$published"
+      specularMetaProps.value.filterNot(_.startsWith("-Dspecular.meta.displayVersion=")) :+ pinned
     },
     // Production site: Closure-advanced spliced client (JDK 21+). spliceFull downloads the pinned
     // preact from jsDelivr (sha256-verified), remaps @JSImport("preact", …) into the bundle, and
