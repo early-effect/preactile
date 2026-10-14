@@ -7,10 +7,10 @@ import zipx.*
   */
 object ZipxVersions extends zipx.ZipxVersions:
 
-  val sbt: SbtVersion     = SbtVersion("2.1.0-M3")
+  val sbt: SbtVersion     = SbtVersion("2.1.0-RC1")
   val scala: ScalaVersion = ScalaVersion("3.9.0")
 
-  val release = ShipGroup("preactile", "0.0.3")("core", "preactileConduit")
+  val release = ShipGroup("preactile", "0.1.0")("core", "preactileConduit")
 
   // Libraries
   val zio: Lib               = Lib("dev.zio", "zio", "2.1.26")
@@ -44,4 +44,4 @@ object ZipxVersions extends zipx.ZipxVersions:
   val scalafix: Plugin       = Plugin("ch.epfl.scala", "sbt-scalafix", "0.14.7")
   val specularPlugin: Plugin = Plugin("rocks.earlyeffect", "sbt-specular", "0.20.0")
   val chekhovPlugin: Plugin  = Plugin("rocks.earlyeffect", "sbt-chekhov", "0.1.1")
-  val splicePlugin: Plugin   = Plugin("rocks.earlyeffect", "sbt-splice", "0.3.2-42d1f350d30e-SNAPSHOT")
+  val splicePlugin: Plugin   = Plugin("rocks.earlyeffect", "sbt-splice", "0.3.2")

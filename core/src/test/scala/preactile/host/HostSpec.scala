@@ -46,7 +46,10 @@ object HostSpec extends PreactileSpec:
           E.div("x")
           None
         catch case e: IllegalStateException => Some(e.getMessage)
-      if prev then preact.rerender()
+      // Preact 10.26 does not export `rerender`. Rendering reinstalls the host the reset removed.
+      if prev then
+        val restore = dom.document.createElement("div")
+        preact.render(E.span(), restore)
       assertTrue(err.exists(_.contains("No renderer installed")))
 
     test("a Preactile VNode is not a React element"):
