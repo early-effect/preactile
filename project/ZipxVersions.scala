@@ -44,4 +44,4 @@ object ZipxVersions extends zipx.ZipxVersions:
   val scalafix: Plugin       = Plugin("ch.epfl.scala", "sbt-scalafix", "0.14.7")
   val specularPlugin: Plugin = Plugin("rocks.earlyeffect", "sbt-specular", "0.20.0")
   val chekhovPlugin: Plugin  = Plugin("rocks.earlyeffect", "sbt-chekhov", "0.1.1")
-  val splicePlugin: Plugin   = Plugin("rocks.earlyeffect", "sbt-splice", "0.3.2-42d1f350d30e-SNAPSHOT")
+  val splicePlugin: Plugin   = Plugin("rocks.earlyeffect", "sbt-splice", "0.3.2")
