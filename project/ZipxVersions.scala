@@ -10,7 +10,7 @@ object ZipxVersions extends zipx.ZipxVersions:
   val sbt: SbtVersion     = SbtVersion("2.1.0-RC1")
   val scala: ScalaVersion = ScalaVersion("3.9.0")
 
-  val release = ShipGroup("preactile", "0.0.3")("core", "preactileConduit")
+  val release = ShipGroup("preactile", "0.1.0")("core", "preactileConduit")
 
   // Libraries
   val zio: Lib               = Lib("dev.zio", "zio", "2.1.26")
