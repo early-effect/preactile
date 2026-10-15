@@ -13,14 +13,14 @@ object ZipxVersions extends zipx.ZipxVersions:
   val release = ShipGroup("preactile", "0.1.0")("core", "preactileConduit")
 
   // Libraries
-  val zio: Lib               = Lib("dev.zio", "zio", "2.1.26")
+  val zio: Lib               = Lib("dev.zio", "zio", "2.1.27")
   val zioTest: Lib           = zio.mod("zio-test").test
   val zioTestSbt: Lib        = zio.mod("zio-test-sbt").test
   val scalajsDom: Lib        = Lib("org.scala-js", "scalajs-dom", "2.8.1")
   val conduit: Lib           = Lib("io.github.russwyte", "conduit", "0.0.6")
   val scalaJavaTime: Lib     = Lib("io.github.cquiroz", "scala-java-time", "2.7.0")
   val scalaJavaTimeTzdb: Lib = scalaJavaTime.mod("scala-java-time-tzdb")
-  val specular: Lib          = Lib("rocks.earlyeffect", "specular-core", "0.20.0")
+  val specular: Lib          = Lib("rocks.earlyeffect", "specular-core", "0.21.1")
   val specularZioTest: Lib   = specular.mod("specular-zio-test").test
   val specularSite: Lib      = specular.mod("specular-site").test
   val specularTheme: Lib     = specular.mod("early-effect-docs-theme").test
@@ -30,18 +30,18 @@ object ZipxVersions extends zipx.ZipxVersions:
   val zioJson: Lib           = Lib("dev.zio", "zio-json", "1.1.0")
   val chekhov: Lib           = Lib("rocks.earlyeffect", "chekhov-zio-test", "0.1.1").test
   val chekhovDriver: Lib     = chekhov.mod("chekhov-driver").test
-  // DevReload for the example. specular-core 0.20 pulls ascent-js 0.11; the Preact demos stay Preact.
+  // DevReload for the example. specular-core 0.21.1 pulls ascent-js 0.11.0. The Preact demos stay Preact.
   val ascentJs: Lib = Lib("rocks.earlyeffect", "ascent-js", "0.11.0")
-  // JVM PreviewMain. specular-site 0.20 needs 0.10.0, so the example preview classpath matches.
-  val ascentPreview: Lib = Lib("rocks.earlyeffect", "ascent-preview", "0.10.0")
+  // JVM PreviewMain. specular-site 0.21.1 depends on ascent-preview 0.11.1.
+  val ascentPreview: Lib = Lib("rocks.earlyeffect", "ascent-preview", "0.11.1")
 
   // sbt plugins (project/plugins.sbt is generated from these rows plus zipxSelfPlugins).
   // sbt-sonatype has no sbt 2 artifact; sbt 2.x includes Sonatype Central support built-in via
   // localStaging.value and publishTo (see build.sbt). sbt-splice bundles pinned JS (Preact) into
-  // the Scala.js output; sbt-ascent-preview comes in transitively from sbt-specular 0.20.0.
+  // the Scala.js output; sbt-ascent-preview comes in transitively from sbt-specular 0.21.1.
   val scalajsPlugin: Plugin  = Plugin("org.scala-js", "sbt-scalajs", "1.22.0")
   val scalafmt: Plugin       = Plugin("org.scalameta", "sbt-scalafmt", "2.6.2")
   val scalafix: Plugin       = Plugin("ch.epfl.scala", "sbt-scalafix", "0.14.7")
-  val specularPlugin: Plugin = Plugin("rocks.earlyeffect", "sbt-specular", "0.20.0")
+  val specularPlugin: Plugin = Plugin("rocks.earlyeffect", "sbt-specular", "0.21.1")
   val chekhovPlugin: Plugin  = Plugin("rocks.earlyeffect", "sbt-chekhov", "0.1.1")
   val splicePlugin: Plugin   = Plugin("rocks.earlyeffect", "sbt-splice", "0.3.2")
