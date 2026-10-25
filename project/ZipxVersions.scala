@@ -18,7 +18,7 @@ object ZipxVersions extends zipx.ZipxVersions:
   val zioTestSbt: Lib        = zio.mod("zio-test-sbt").test
   val scalajsDom: Lib        = Lib("org.scala-js", "scalajs-dom", "2.8.1")
   val conduit: Lib           = Lib("io.github.russwyte", "conduit", "0.0.6")
-  val scalaJavaTime: Lib     = Lib("io.github.cquiroz", "scala-java-time", "2.7.0")
+  val scalaJavaTime: Lib     = Lib("io.github.cquiroz", "scala-java-time", "2.8.0")
   val scalaJavaTimeTzdb: Lib = scalaJavaTime.mod("scala-java-time-tzdb")
   val specular: Lib          = Lib("rocks.earlyeffect", "specular-core", "0.21.1")
   val specularZioTest: Lib   = specular.mod("specular-zio-test").test
@@ -27,11 +27,11 @@ object ZipxVersions extends zipx.ZipxVersions:
   // Docs JVM only: Mermaid literal to SVG. Not a dependency of the published artifacts.
   val mermoid: Lib           = Lib("rocks.earlyeffect", "mermoid", "0.2.0").test
   // Not library()-selected. Specular already pulls zio-json; docs overrides to this row.
-  val zioJson: Lib           = Lib("dev.zio", "zio-json", "1.1.0")
-  val chekhov: Lib           = Lib("rocks.earlyeffect", "chekhov-zio-test", "0.1.1").test
+  val zioJson: Lib           = Lib("dev.zio", "zio-json", "1.1.1")
+  val chekhov: Lib           = Lib("rocks.earlyeffect", "chekhov-zio-test", "0.1.3").test
   val chekhovDriver: Lib     = chekhov.mod("chekhov-driver").test
   // DevReload for the example. specular-core 0.21.1 pulls ascent-js 0.11.0. The Preact demos stay Preact.
-  val ascentJs: Lib = Lib("rocks.earlyeffect", "ascent-js", "0.11.0")
+  val ascentJs: Lib = Lib("rocks.earlyeffect", "ascent-js", "0.11.1")
   // JVM PreviewMain. specular-site 0.21.1 depends on ascent-preview 0.11.1.
   val ascentPreview: Lib = Lib("rocks.earlyeffect", "ascent-preview", "0.11.1")
 
@@ -41,7 +41,7 @@ object ZipxVersions extends zipx.ZipxVersions:
   // the Scala.js output; sbt-ascent-preview comes in transitively from sbt-specular 0.21.1.
   val scalajsPlugin: Plugin  = Plugin("org.scala-js", "sbt-scalajs", "1.22.0")
   val scalafmt: Plugin       = Plugin("org.scalameta", "sbt-scalafmt", "2.6.2")
-  val scalafix: Plugin       = Plugin("ch.epfl.scala", "sbt-scalafix", "0.14.7")
+  val scalafix: Plugin       = Plugin("ch.epfl.scala", "sbt-scalafix", "0.14.9")
   val specularPlugin: Plugin = Plugin("rocks.earlyeffect", "sbt-specular", "0.21.1")
-  val chekhovPlugin: Plugin  = Plugin("rocks.earlyeffect", "sbt-chekhov", "0.1.1")
+  val chekhovPlugin: Plugin  = Plugin("rocks.earlyeffect", "sbt-chekhov", "0.1.3")
   val splicePlugin: Plugin   = Plugin("rocks.earlyeffect", "sbt-splice", "0.3.2")
