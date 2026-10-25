@@ -57,5 +57,4 @@ object TodoList:
     final case class SetAll(boolean: Boolean)                       extends Action
     final case class FinishEditing(todo: Todo, description: String) extends Action
     final case class CancelEditing(todo: Todo)                      extends Action
-  end actions
 end TodoList

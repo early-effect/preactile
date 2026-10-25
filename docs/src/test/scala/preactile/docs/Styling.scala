@@ -72,4 +72,3 @@ without defining a separate style object.
 See the [Examples](/Examples) page for the other live demos.
 """,
   )
-end Styling

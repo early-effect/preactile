@@ -19,8 +19,9 @@ end Component
 object Component:
 
   given selfComp[Comp <: Component[Comp], T <: Arg]: Conversion[Comp, T] = c => c.apply(c).asInstanceOf[T]
-  def apply[Props](renderF: ComponentFunction[Props]): Component[Props] =
+  def apply[Props](renderF: ComponentFunction[Props]): Component[Props]  =
     new FunctionalComponent(renderF)
+end Component
 
 class FunctionalComponent[Props](renderF: ComponentFunction[Props]) extends Component[Props]:
   override def render(props: Props): VNode = renderF(props)

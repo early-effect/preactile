@@ -69,4 +69,3 @@ object DataFetcher extends StatefulComponent[Unit, String]:
 See the [Examples](/Examples) page for the other live demos.
 """,
   )
-end StatefulComponents

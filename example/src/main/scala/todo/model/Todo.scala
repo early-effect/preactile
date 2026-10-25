@@ -20,5 +20,4 @@ object Todo:
     b(8) = ((b(8) & 0x3f) | 0x80).toByte
     val h = (0 until 16).map(i => f"${b(i).toInt}%02x").mkString
     s"${h.substring(0, 8)}-${h.substring(8, 12)}-${h.substring(12, 16)}-${h.substring(16, 20)}-${h.substring(20, 32)}"
-  end randomUUID
 end Todo

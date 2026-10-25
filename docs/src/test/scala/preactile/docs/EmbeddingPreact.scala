@@ -40,4 +40,3 @@ Same todo UI, host Preact as the renderer.
       "todo",
     ),
   )
-end EmbeddingPreact

@@ -43,7 +43,6 @@ object BuildSite extends DocsSite:
           ),
         ),
       )
-  end site
 
   override def layers = EarlyEffectTheme.layers
 
@@ -89,12 +88,12 @@ object BuildSite extends DocsSite:
     val names    = List("react.development.js", "react-dom.development.js")
     ZIO.attemptBlockingIO(Files.isRegularFile(htmlPath)).mapError(SiteError.FileUnreadable(htmlPath, _)).flatMap {
       case false => ZIO.unit
-      case true =>
+      case true  =>
         ZIO.foreachDiscard(names) { name =>
           val src = pins.resolve(name)
           ZIO.attemptBlockingIO(Files.isRegularFile(src)).mapError(SiteError.FileUnreadable(src, _)).flatMap {
             case false => ZIO.fail(SiteError.MissingFile(src))
-            case true =>
+            case true  =>
               ZIO
                 .attemptBlockingIO {
                   Files.createDirectories(dest)
@@ -117,7 +116,6 @@ object BuildSite extends DocsSite:
               ZIO.attemptBlockingIO(Files.writeString(htmlPath, next)).mapError(SiteError.WriteFailed(htmlPath, _)).unit
         }
     }
-  end injectReactHost
 
   /** index.html is Specular's summary page. The front DocPage is the index. Asset paths stay site-relative. */
   private def promoteFront(out: Path): IO[SiteError, Unit] =
@@ -125,7 +123,7 @@ object BuildSite extends DocsSite:
     val index = out.resolve("index.html")
     ZIO.attemptBlockingIO(Files.isRegularFile(front)).mapError(SiteError.FileUnreadable(front, _)).flatMap {
       case false => ZIO.fail(SiteError.MissingFile(front))
-      case true =>
+      case true  =>
         ZIO
           .attemptBlockingIO {
             val _ = Files.copy(front, index, StandardCopyOption.REPLACE_EXISTING)
@@ -133,7 +131,6 @@ object BuildSite extends DocsSite:
           .mapError(SiteError.WriteFailed(index, _))
           .unit
     }
-  end promoteFront
 
   /** Stamp file watched by ascent-preview after each rebuild. Harmless on CI/Pages: SpecularClient only subscribes to
     * `/__ascent/reload` on localhost.
@@ -148,7 +145,6 @@ object BuildSite extends DocsSite:
       }
       .mapError(SiteError.WriteFailed(stamp, _))
       .unit
-  end writeDevStamp
 
   /** `DirectoryStream.forEach` wraps `IOException` in `UncheckedIOException`. `FileUnreadable` only carries
     * `IOException`.

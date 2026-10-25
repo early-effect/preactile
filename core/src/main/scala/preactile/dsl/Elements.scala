@@ -10,6 +10,7 @@ private[preactile] class ElementConstructor(name: String):
   def apply(acs: Arg*): VNode =
     val args = Args(acs)
     Preactile.h(name, args.attributeDictionary, args.children)
+end ElementConstructor
 
 sealed trait ElementSet:
   def element(name: String) = new ElementConstructor(name)
@@ -30,7 +31,6 @@ trait Sectioning extends ElementSet:
   val main: ElementConstructor    = element("main")
   val nav: ElementConstructor     = element("nav")
   val section: ElementConstructor = element("section")
-end Sectioning
 
 trait TextContent extends ElementSet:
   val blockquote: ElementConstructor = element("blockquote")
@@ -48,7 +48,6 @@ trait TextContent extends ElementSet:
   val p: ElementConstructor          = element("p")
   val pre: ElementConstructor        = element("pre")
   val ul: ElementConstructor         = element("ul")
-end TextContent
 
 trait Forms extends ElementSet:
   val button: ElementConstructor   = element("button")
@@ -65,7 +64,6 @@ trait Forms extends ElementSet:
   val progress: ElementConstructor = element("progress")
   val select: ElementConstructor   = element("select")
   val textarea: ElementConstructor = element("textarea")
-end Forms
 
 trait InlineText extends ElementSet:
   val a: ElementConstructor      = element("a")
@@ -100,7 +98,6 @@ trait InlineText extends ElementSet:
   val u: ElementConstructor      = element("u")
   val `var`: ElementConstructor  = element("var")
   val wbr: ElementConstructor    = element("wbr")
-end InlineText
 
 trait ImagesAndMultimedia extends ElementSet:
   val area: ElementConstructor  = element("area")
@@ -138,7 +135,6 @@ trait TableContent extends ElementSet:
   val th: ElementConstructor       = element("th")
   val thead: ElementConstructor    = element("thead")
   val tr: ElementConstructor       = element("tr")
-end TableContent
 
 trait InteractiveElements extends ElementSet:
   val details: ElementConstructor  = element("details")

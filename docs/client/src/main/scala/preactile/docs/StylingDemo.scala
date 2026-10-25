@@ -45,6 +45,5 @@ object StylingDemo:
         ),
       ),
     )
-  end App
   // specular:end
 end StylingDemo

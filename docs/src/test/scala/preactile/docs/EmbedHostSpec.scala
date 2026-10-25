@@ -29,7 +29,6 @@ object EmbedHostSpec extends ZIOSpecDefault:
         case false => ZIO.sleep(150.millis) *> loop
       }
     loop.timeoutFail(ChekhovError.Timeout(timeoutMsg))(8.seconds)
-  end waitForTrue
 
   private def waitMounted(page: Page, chrome: String): IO[ChekhovError, Unit] =
     waitForTrue(
@@ -56,7 +55,7 @@ object EmbedHostSpec extends ZIOSpecDefault:
         chrome <- page.innerText("#host-chrome")
         hello  <- page.innerText("#greeting")
         _      <- page.click("#stateful")
-        _ <- waitForTrue(
+        _      <- waitForTrue(
           page,
           """() => (document.getElementById('stateful')?.textContent || '') === 'state:1'""",
           "stateful counter did not increment",
@@ -89,7 +88,7 @@ object EmbedHostSpec extends ZIOSpecDefault:
         chrome <- page.innerText("#host-chrome")
         hello  <- page.innerText("#greeting")
         _      <- page.click("#stateful")
-        _ <- waitForTrue(
+        _      <- waitForTrue(
           page,
           """() => (document.getElementById('stateful')?.textContent || '') === 'state:1'""",
           "stateful counter did not increment",

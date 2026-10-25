@@ -31,7 +31,6 @@ abstract class CssClass(members: DeclarationOrSelector*) extends Attribute:
       .mkString("\n")
     val mediaQueriesCss = mediaQueries.map(_.render).mkString("\n")
     mainCss + keyFramesCss + mediaQueriesCss
-  end mkString
 
   private def appendStyle(): Unit =
     val d                  = org.scalajs.dom.document

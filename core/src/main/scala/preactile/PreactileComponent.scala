@@ -50,12 +50,10 @@ trait PreactileComponent[Props, State]:
           selectors.addDataAttribute(e, facade)
           selectors.addClass(e)
         }
-      case classSelector: ClassSelector => n.withRef(e => classSelector.addClass(e))
+      case classSelector: ClassSelector               => n.withRef(e => classSelector.addClass(e))
       case instanceDataSelector: InstanceDataSelector =>
         n.withRef(e => instanceDataSelector.addDataAttribute(e, facade))
       case _ => n
-    end match
-  end addSelectors
 end PreactileComponent
 
 object PreactileComponent:

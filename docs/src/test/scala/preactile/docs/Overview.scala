@@ -67,8 +67,8 @@ The counter is a `StatefulComponent`. It builds its DOM with `E`, which is this 
       case other => other
 
   private def svgUi(node: SvgNode): UI[Any] = node match
-    case SvgNode.Text(value)  => UI.Text(value)
-    case SvgNode.Raw(content) => UI.Text(content)
+    case SvgNode.Text(value)                   => UI.Text(value)
+    case SvgNode.Raw(content)                  => UI.Text(content)
     case SvgNode.Element(tag, attrs, children) =>
       UI.Element(
         tag,

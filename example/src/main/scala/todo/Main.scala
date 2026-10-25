@@ -19,5 +19,3 @@ object Main extends ZIOAppDefault:
       _ <- ZIO.succeed(DevReload.install())
       c <- TodosConduit.run(false)
     yield c
-  end run
-end Main

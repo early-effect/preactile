@@ -19,4 +19,3 @@ Live demos, simple components and a conduit todo:
 Owned apps still use [Mounting](/Mounting) (`preactile.preact.render`).
 """
   )
-end Embedding

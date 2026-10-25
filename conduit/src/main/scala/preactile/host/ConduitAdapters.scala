@@ -29,7 +29,7 @@ object ConduitAdapters:
       c: ConduitComponent[P, M, Ev, S],
       read: js.Dynamic => P,
   ): js.Dynamic =
-    val base = HostClass.requireClass
+    val base                                             = HostClass.requireClass
     val ctor: js.ThisFunction1[js.Any, js.Dynamic, Unit] = (thiz, rawProps) =>
       base.call(thiz, rawProps)
       val d = thiz.asInstanceOf[js.Dynamic]

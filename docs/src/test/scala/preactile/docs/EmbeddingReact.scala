@@ -53,4 +53,3 @@ The same todo UI as [Conduit Integration](/ConduitIntegration), exported with
 - Do not splice a second Preact into a bundle that already has React.
 """,
   )
-end EmbeddingReact

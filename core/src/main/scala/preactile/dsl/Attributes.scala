@@ -57,7 +57,6 @@ sealed trait AttributeSet:
     def search: Attribute  = this.apply("search")
     def email: Attribute   = this.apply("email")
     def url: Attribute     = this.apply("url")
-  end InputMode
 
   trait YesOrNo extends A[String]:
     def yes: Attribute = this.apply("yes")

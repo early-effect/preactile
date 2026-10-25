@@ -16,7 +16,6 @@ final class HostHooks(
     val useReducer: js.UndefOr[js.Function] = js.undefined,
 ):
   def isDefined: Boolean = useState.isDefined && useEffect.isDefined
-end HostHooks
 
 object HostHooks:
   val empty: HostHooks = HostHooks()
@@ -70,7 +69,6 @@ class HostInstance[P, S](
     val b = raw.base
     if b == null || js.isUndefined(b) then js.undefined else b.asInstanceOf[Element]
   def render(): VNode = throw IllegalStateException("Host.Component.render is implemented on the JS prototype")
-end HostInstance
 
 object Host:
   /** Contract for a host class-component instance. Adapters extend the `componentClass` passed to [[use]]
@@ -129,10 +127,9 @@ object Host:
         epoch = epoch,
       )
     )
-  end use
 
   def useReact(react: js.Dynamic): Unit =
-    val children = react.Children
+    val children                                        = react.Children
     val toArray: js.Function1[js.Any, js.Array[js.Any]] =
       if children == null || js.isUndefined(children) then defaultToChildArray
       else
@@ -147,7 +144,6 @@ object Host:
       componentClass = asDyn(react.Component),
       kind = HostKind.React,
     )
-  end useReact
 
   def usePreactHost(preactNs: js.Dynamic, hooksNs: js.UndefOr[js.Dynamic] = js.undefined): Unit =
     val hooks = hooksNs.fold(HostHooks.empty)(HostHooks.from)
@@ -159,7 +155,6 @@ object Host:
       componentClass = asDyn(preactNs.Component),
       kind = HostKind.Preact,
     )
-  end usePreactHost
 
   def h(`type`: js.Any, params: js.Dictionary[js.Any] | Null, children: js.Array[Child]): VNodeJS =
     call(`type`, mapParams(params), children.map(_.value))
@@ -188,7 +183,7 @@ object Host:
     if value == null || js.isUndefined(value) then js.undefined else value
 
   private def call(`type`: js.Any, params: js.Any, children: js.Any): VNodeJS =
-    val ce = current.createElement.asInstanceOf[js.Dynamic]
+    val ce     = current.createElement.asInstanceOf[js.Dynamic]
     val result =
       if children == null || js.isUndefined(children) then ce.call(js.undefined, `type`, params)
       else if current.kind == HostKind.React && js.Array.isArray(children) then
@@ -201,7 +196,6 @@ object Host:
         ce.applyDynamic("apply")(js.undefined, args)
       else ce.call(js.undefined, `type`, params, children)
     result.asInstanceOf[VNodeJS]
-  end call
 
   private def mapParams(params: js.Dictionary[js.Any] | Null): js.Any =
     if params == null then params
@@ -216,9 +210,9 @@ object Host:
 
   private def reactPropName(name: String): String =
     name match
-      case "class"      => "className"
-      case "for"        => "htmlFor"
-      case "ondblclick" => "onDoubleClick"
+      case "class"                 => "className"
+      case "for"                   => "htmlFor"
+      case "ondblclick"            => "onDoubleClick"
       case n if n.startsWith("on") =>
         reactDomEvents.find(_.equalsIgnoreCase(n)).getOrElse {
           if n.length > 2 && n.charAt(2).isLower then "on" + n.charAt(2).toUpper + n.substring(3)

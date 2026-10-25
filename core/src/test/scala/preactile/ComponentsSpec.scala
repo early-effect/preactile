@@ -40,6 +40,7 @@ object ComponentsSpec extends PreactileSpec:
         override def extractAttributeValue(instance: Simple.Instance): String = instance.props
 
         override def render(props: String): VNode = E.span(props)
+      end Simple
       render(Simple("foo").withRef(e => e.setAttribute("foo", "bar")))
       check(
         "<span data-preactile-simple=\"foo\" class=\"simple\" foo=\"bar\">foo</span>"

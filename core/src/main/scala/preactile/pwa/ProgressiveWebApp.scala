@@ -73,7 +73,6 @@ trait ProgressiveWebApp:
         .orElse(Option(r.waiting))
         .foreach(worker => worker.onstatechange = _ => if worker.state == "installed" then serviceWorkerUpdated())
     r.update()
-  end update
 
   def installTimer(r: dom.ServiceWorkerRegistration): Unit =
     timer.foreach(js.timers.clearInterval)
@@ -97,7 +96,6 @@ trait ProgressiveWebApp:
           update(r),
     )
     installTimer(r)
-  end serviceWorkerRegistered
 
   def handleRegistrationError(t: Throwable): Unit = dom.console.error("Failed to register service worker", t)
 end ProgressiveWebApp

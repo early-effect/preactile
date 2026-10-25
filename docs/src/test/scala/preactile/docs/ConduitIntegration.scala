@@ -254,5 +254,3 @@ See the [Examples](/Examples) page for the other live demos. Live host exports a
 on [Embedding in React](/EmbeddingInReact) and [Embedding in Preact](/EmbeddingInPreact).
 """,
   )
-
-end ConduitIntegration

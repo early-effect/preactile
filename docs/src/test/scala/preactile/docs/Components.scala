@@ -67,4 +67,3 @@ See [Stateful Components](/StatefulComponents) for `setState`, and [Examples](/E
 for the other live demos.
 """,
   )
-end Components

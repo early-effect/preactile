@@ -49,5 +49,4 @@ object Editor extends StatefulComponent[Todo, String] with InstanceDataSelector 
       A.onKeyUp(_ => instance.setState(instance.base.asInstanceOf[HTMLInputElement].value)),
       A.onBlur(_ => finishEditing()),
     ).withRef(x => timers.setTimeout(1)(x.asInstanceOf[HTMLInputElement].focus()))
-  end render
 end Editor

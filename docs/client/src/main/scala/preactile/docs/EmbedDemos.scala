@@ -21,7 +21,7 @@ object EmbedSimple:
       E.div(A.id("greeting"), A.`class`("hi"), props)
 
   object ClickCounter extends StatefulComponent[Unit, Int]:
-    override def initialState(props: Unit): Int = 0
+    override def initialState(props: Unit): Int                    = 0
     def render(props: Unit, state: Int, instance: Instance): VNode =
       E.button(
         A.id("stateful"),
@@ -57,7 +57,7 @@ object EmbedReactDemo:
     ensureReact()
     val greeting = asFunctionComponent(EmbedSimple.Greeting, d => d.label.asInstanceOf[String])
     val stateful = asStatefulComponent(EmbedSimple.ClickCounter, _ => ())
-    val tree = reactNs.createElement(
+    val tree     = reactNs.createElement(
       "div",
       null,
       reactNs.createElement("span", js.Dictionary("id" -> "host-chrome"), "host-react"),
@@ -85,7 +85,7 @@ object EmbedPreactDemo:
     val greeting = asFunctionComponent(EmbedSimple.Greeting, d => d.label.asInstanceOf[String])
     val stateful = asStatefulComponent(EmbedSimple.ClickCounter, _ => ())
     val h        = preactNs.h
-    val tree = h(
+    val tree     = h(
       "div",
       null,
       h("span", js.Dictionary("id" -> "host-chrome"), "host-preact"),

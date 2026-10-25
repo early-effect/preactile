@@ -16,7 +16,7 @@ abstract class PreactileSpec extends ZIOSpecDefault:
     dom.document.documentElement.appendChild(res)
     res
 
-  def check(s: String) = assertTrue(parent.innerHTML == s)
+  def check(s: String)              = assertTrue(parent.innerHTML == s)
   def checkAfter(n: Int)(s: String) =
     for _ <- ZIO.sleep(n.millis)
     yield check(s)
