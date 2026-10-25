@@ -84,11 +84,12 @@ object Styles:
         mediaQueries: js.Array[MediaQuery],
     ): String =
       s"$selector {\n${members.map("    " + _.mkString(className, keyFrames, mediaQueries)).mkString("\n")}\n  }"
+  end KeyframeSelector
 
   class Selector private (val selector: String, val members: Seq[DeclarationOrSelector]) extends DeclarationOrSelector:
 
     override def mkString(className: String, ks: js.Array[KeyFrames], ms: js.Array[MediaQuery]): String =
-      val ss = members.collect { case s: Selector => s }.map(s => s.mkString(className, ks)).mkString("\n")
+      val ss    = members.collect { case s: Selector => s }.map(s => s.mkString(className, ks)).mkString("\n")
       val inner = members
         .collect { case p @ (_: Declaration | _: KeyFrames | _: KeyframeSelector | _: MediaQuery) => p }
         .map(_.mkString(className, ks, ms))
@@ -96,7 +97,6 @@ object Styles:
         .map("  " + _)
         .mkString("\n")
       s"$selector {\n$inner\n}\n" + ss
-    end mkString
 
     def prependAll(s: String): Selector =
       new Selector(
@@ -211,7 +211,6 @@ object Styles:
     def stretch: Declaration = this("stretch")
     object safe   extends Prefixed("safe") with SelfPosition
     object unsafe extends Prefixed("unsafe") with SelfPosition
-  end justifyItems
 
   object lineHeight extends DS("line-height") with Normal with LengthPercentage:
     def number(d: Double): Declaration = this(s"$d")
@@ -260,6 +259,7 @@ object Styles:
 
     def apply(top: String, right: String, bottom: String, left: String): Declaration =
       this(s"$top $right $bottom $left")
+  end margin
 
   object cursor extends DS("cursor") with Auto with None:
     def default: Declaration      = this("default")
@@ -296,7 +296,6 @@ object Styles:
     def zoomOut: Declaration      = this("zoom-out")
     def grab: Declaration         = this("grab")
     def grabbing: Declaration     = this("grabbing")
-  end cursor
 
   object padding extends DS("padding") with LengthPercentage {}
 
@@ -498,7 +497,6 @@ object Styles:
     def middle: Declaration     = this("middle")
     def top: Declaration        = this("top")
     def bottom: Declaration     = this("bottom")
-  end verticalAlign
 
   object resize extends DS(property = "resize") with None:
     def both: Declaration       = this("both")
@@ -521,7 +519,6 @@ object Styles:
     def pinchZoom: Declaration    = this("pinch-zoom")
     def manipulation: Declaration = this("manipulation")
     def panX_panY: Declaration    = this("pan-x pan-y")
-  end touchAction
 
   // Todo: this should be doable as an apply normal or two LengthPercentages
   object gap extends DS(property = "gap"):

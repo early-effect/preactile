@@ -53,7 +53,6 @@ object TodoDemo:
     final case class StartEditing(key: String)                extends TodoAction
     final case class FinishEditing(key: String, text: String) extends TodoAction
     final case class CancelEditing(key: String)               extends TodoAction
-  end TodoActions
 
   val todoHandler = handle[TodoModel, TodoAction]:
     case TodoActions.Add(text) =>
@@ -445,7 +444,6 @@ object TodoDemo:
           },
         ),
       )
-  end Header
 
   /** List area with toggle-all checkbox and items. */
   object ListArea extends Component[TodoModel]:
@@ -469,7 +467,6 @@ object TodoDemo:
             ),
           ),
       )
-    end render
 
     private def matchFilter(todo: Todo, filter: Filter): Boolean =
       (filter, todo.done) match
@@ -499,8 +496,6 @@ object TodoDemo:
         ),
         "Mark all complete",
       )
-    end render
-  end ToggleAllRow
 
   /** Individual todo item — renders either viewer or editor based on editing state. */
   object Item extends Component[Todo]:
@@ -549,7 +544,6 @@ object TodoDemo:
           "✕",
         ),
       )
-  end Viewer
 
   /** Edit mode: inline text input with Enter/Escape handling. */
   object Editor extends StatefulComponent[Todo, String]:

@@ -33,7 +33,6 @@ trait VNode extends Child:
       props,
       vNode.rawChildren,
     )
-  end withT
 
   def children: js.Array[VNode] = vNode.childArray.map(x => x: VNode)
 
@@ -50,7 +49,7 @@ trait VNode extends Child:
     val safe: js.Function1[js.Any, Unit] = {
       case null           => ()
       case e: dom.Element => combined(e)
-      case x: js.Any =>
+      case x: js.Any      =>
         Option(x.asInstanceOf[js.Dynamic].base).map(_.asInstanceOf[dom.Element]).foreach(combined)
     }
     withT(name = "ref", safe)
@@ -81,6 +80,7 @@ trait Attribute extends Arg:
   def value: js.Any
 
   override def toString: String = s"$name: ${value.toString}"
+end Attribute
 
 final case class SimpleAttribute(name: String, value: js.Any) extends Attribute
 
@@ -93,6 +93,7 @@ final case class Declaration(property: String, value: String) extends Arg with D
     s"$property: $value;"
 
   def important: Declaration = copy(value = s"$value !important")
+end Declaration
 
 final case class StringArg(s: String) extends Child:
   override def value: js.Any = s
@@ -144,7 +145,6 @@ case class Args(args: Seq[Arg]) extends Arg:
       }
       if ds.nonEmpty then as.push(A.style(ds.toSeq*))
     as
-  end attributes
 
   lazy val children: js.Array[Child] =
     val cs = js.Array[Child]()
@@ -156,7 +156,6 @@ case class Args(args: Seq[Arg]) extends Arg:
         case _        =>
       }
     cs
-  end children
 end Args
 
 object Args:

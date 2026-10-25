@@ -10,3 +10,4 @@ trait InstanceDataSelector:
 
   def addDataAttribute(e: dom.Element, instance: Instance): Unit =
     e.setAttribute(attributeName, comp.extractAttributeValue(instance))
+end InstanceDataSelector

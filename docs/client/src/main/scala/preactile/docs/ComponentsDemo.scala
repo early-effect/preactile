@@ -26,5 +26,6 @@ object ComponentsDemo:
       E.p(s"Button clicked $state times."),
       Button(ButtonProps("Click me!", () => instance.setState(state + 1))),
     )
+  end App
   // specular:end
 end ComponentsDemo

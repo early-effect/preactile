@@ -19,7 +19,6 @@ object HostClass:
     ctorDyn.prototype.constructor = ctorDyn
     js.Dynamic.global.Object.setPrototypeOf(ctorDyn, base)
     ctorDyn
-  end extend
 
   def requireClass: js.Dynamic =
     Host.current.componentClass.getOrElse(

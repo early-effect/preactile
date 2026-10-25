@@ -73,7 +73,6 @@ object Footer:
   end css
 
   val component = TodosConduit.component: todoList =>
-
     val itemsLeftMessage = if todoList.countIncomplete > 1 then " items left" else " item left"
 
     E.footer(

@@ -28,7 +28,7 @@ object Main:
       E.div(A.id("greeting"), A.`class`("hi"), props)
 
   object ClickCounter extends StatefulComponent[Unit, Int]:
-    override def initialState(props: Unit): Int = 0
+    override def initialState(props: Unit): Int                    = 0
     def render(props: Unit, state: Int, instance: Instance): VNode =
       E.button(
         A.id("stateful"),
@@ -52,9 +52,8 @@ object Main:
     host match
       case "react"  => mountReact()
       case "preact" => mountPreact()
-      case other =>
+      case other    =>
         dom.window.console.error(s"Unknown data-host: $other")
-  end main
 
   private def mountReact(): Unit =
     val react = js.Dynamic.global.window.selectDynamic("React")
@@ -63,7 +62,7 @@ object Main:
     val greeting = asFunctionComponent(Greeting, d => d.label.asInstanceOf[String])
     val stateful = asStatefulComponent(ClickCounter, _ => ())
     val conduit  = asConduitComponent(CounterView, _ => ())
-    val tree = react.createElement(
+    val tree     = react.createElement(
       "div",
       null,
       react.createElement("span", js.Dictionary("id" -> "host-chrome"), "host-react"),
@@ -73,7 +72,6 @@ object Main:
     )
     val app = dom.document.getElementById("app")
     domNs.createRoot(app).render(tree)
-  end mountReact
 
   private def mountPreact(): Unit =
     val preact = js.Dynamic.global.window.selectDynamic("preact")
@@ -82,7 +80,7 @@ object Main:
     val stateful = asStatefulComponent(ClickCounter, _ => ())
     val conduit  = asConduitComponent(CounterView, _ => ())
     val h        = preact.h
-    val tree = h(
+    val tree     = h(
       "div",
       null,
       h("span", js.Dictionary("id" -> "host-chrome"), "host-preact"),
@@ -91,5 +89,4 @@ object Main:
       h(conduit, null),
     )
     preact.render(tree, dom.document.getElementById("app"))
-  end mountPreact
 end Main

@@ -150,5 +150,3 @@ This triggers `componentWillUnmount` lifecycle hooks and cleans up subscriptions
 - See [Embedding](/Embedding) for host React and host Preact pages
 """
   )
-
-end Mounting

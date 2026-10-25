@@ -28,7 +28,6 @@ object ds:
     def listbox: Declaration        = apply("listbox")
     def meter: Declaration          = apply("meter")
     def progressBar: Declaration    = apply("progress-bar")
-  end Compat
 
   trait Suffixed[T] extends DS:
     type ST = T => Declaration
@@ -43,7 +42,6 @@ object ds:
     val lh: ST  = suffixed("lh")
     val rem: ST = suffixed("rem")
     val rlh: ST = suffixed("rlh")
-  end FontRelativeLength
 
   trait ViewportPercentageLength extends Suffixed[Double]:
     val vh: ST   = suffixed("vh")
@@ -107,7 +105,6 @@ object ds:
     def ridge: Declaration  = apply("ridge")
     def inset: Declaration  = apply("inset")
     def outset: Declaration = apply("outset")
-  end LinStyle
 
   trait LeaderType extends DS:
     def dotted: Declaration = apply("dotted")
@@ -139,7 +136,6 @@ object ds:
     def saturation: Declaration = apply("saturation")
     def color: Declaration      = apply("color")
     def luminosity: Declaration = apply("luminosity")
-  end BlendMode
 
   trait Box extends DS:
     def borderBox: Declaration  = apply("border-box")
@@ -192,7 +188,6 @@ object ds:
     def rubyText: Declaration          = apply("ruby-text")
     def rubyBaseContainer: Declaration = apply("ruby-base-container")
     def rubyTextContainer: Declaration = apply("ruby-text-container")
-  end DisplayInternal
 
   trait DisplayLegacy extends DS:
     def inlineBlock: Declaration    = apply("inline-block")
@@ -211,7 +206,6 @@ object ds:
     def runIn_listItem: Declaration           = apply("run-in list-item")
     def runIn_flow_listItem: Declaration      = apply("run-in flow list-item")
     def runIn_flowRoot_listItem: Declaration  = apply("run-in flow-root list-item")
-  end DisplayListItem
 
   trait Display
       extends DisplayBox
@@ -249,7 +243,6 @@ object ds:
     def ridge: Declaration  = apply("ridge")
     def inset: Declaration  = apply("inset")
     def outset: Declaration = apply("outset")
-  end LineStyle
 
   trait ContentDistribution extends DS:
     def spaceBetween: Declaration = apply("space-between")
@@ -297,7 +290,6 @@ object ds:
     def expanded: Declaration       = apply("expanded")
     def extraExpanded: Declaration  = apply("extra-expanded")
     def ultraExpanded: Declaration  = apply("ultra-expanded")
-  end FontStretchAbsolute
 
   trait RightLeftTopBottom extends LengthPercentage with Auto
 end ds

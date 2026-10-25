@@ -45,7 +45,8 @@ object HostSpec extends PreactileSpec:
         try
           E.div("x")
           None
-        catch case e: IllegalStateException => Some(e.getMessage)
+        catch
+          case e: IllegalStateException => Some(e.getMessage)
       // Preact 10.26 does not export `rerender`. Rendering reinstalls the host the reset removed.
       if prev then
         val restore = dom.document.createElement("div")
@@ -97,7 +98,7 @@ object HostSpec extends PreactileSpec:
     test("stateful adapter setState from click and didMount"):
       withReact {
         object Counter extends StatefulComponent[Unit, Int]:
-          override def initialState(props: Unit): Int = 1
+          override def initialState(props: Unit): Int     = 1
           override def didMount(instance: Instance): Unit =
             if instance.state == 1 then instance.setState(2)
           def render(props: Unit, state: Int, instance: Instance): VNode =
@@ -109,7 +110,6 @@ object HostSpec extends PreactileSpec:
                 "+",
               ),
             )
-        end Counter
         val cls        = asStatefulComponent(Counter, _ => ())
         val (el, root) = mountReact(ReactNs.createElement(cls, null))
         val html       = el.innerHTML
@@ -123,7 +123,7 @@ object HostSpec extends PreactileSpec:
     test("shouldUpdate false keeps old DOM"):
       withReact {
         object Frozen extends StatefulComponent[String, String]:
-          override def initialState(name: String): String = name
+          override def initialState(name: String): String                                              = name
           override def shouldUpdate(nextProps: String, nextState: String, previous: Instance): Boolean =
             false
           def render(props: String, state: String, instance: Instance): VNode =

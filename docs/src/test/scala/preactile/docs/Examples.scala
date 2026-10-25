@@ -24,4 +24,3 @@ is on [Embedding in React](/EmbeddingInReact); host Preact is on
 [Embedding in Preact](/EmbeddingInPreact).
 """
   )
-end Examples

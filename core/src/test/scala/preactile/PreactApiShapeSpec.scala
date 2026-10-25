@@ -22,6 +22,7 @@ object PreactApiShapeSpec extends PreactileSpec:
 
         override def render(name: String, state: Unit, instance: Instance): VNode =
           E.div(s"render-arg:$name")
+      end RenderArgComponent
 
       val component = new RenderArgComponent()
       render(component("hello"))
@@ -60,6 +61,7 @@ object PreactApiShapeSpec extends PreactileSpec:
 
         override def render(name: String, state: String, instance: Instance): VNode =
           E.div(s"lazy:$state")
+      end LazyInitComponent
 
       val component = new LazyInitComponent()
       render(component("input"))

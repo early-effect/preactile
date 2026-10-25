@@ -33,7 +33,7 @@ object ConduitHostSpec extends ZIOSpecDefault:
       val handler = handle[Counter, CountAction]:
         case CountActions.Increment => update(m => m.copy(count = m.count + 1))
       val cduit = Conduit.make(Counter(0))(handler)
-      val view = cduit.component { model =>
+      val view  = cduit.component { model =>
         E.div(s"count:${model.count}")
       }
       val cls  = asConduitComponent(view, _ => ())

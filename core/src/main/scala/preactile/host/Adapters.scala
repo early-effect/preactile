@@ -59,14 +59,13 @@ object Adapters:
     proto.componentDidCatch = didCatch
     ctor.asInstanceOf[js.Dynamic].displayName = c.classForClass
     ctor
-  end statelessClass
 
   private def statefulClass[P, S](c: StatefulComponent[P, S], read: js.Dynamic => P): js.Dynamic =
-    val base = HostClass.requireClass
+    val base                                             = HostClass.requireClass
     val ctor: js.ThisFunction1[js.Any, js.Dynamic, Unit] = (thiz, rawProps) =>
       base.call(thiz, rawProps)
       val fromThis = thiz.asInstanceOf[js.Dynamic].props
-      val src =
+      val src      =
         if rawProps == null || js.isUndefined(rawProps) then fromThis
         else rawProps
       val props = read(src)
@@ -133,5 +132,4 @@ object Adapters:
     def setState(s: Nothing): Unit = ()
     @scala.scalajs.js.annotation.JSName("eBase")
     def base: js.UndefOr[org.scalajs.dom.Element] = js.undefined
-  end DummyInstance
 end Adapters
